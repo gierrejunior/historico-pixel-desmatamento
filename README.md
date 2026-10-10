@@ -4,7 +4,8 @@ Página única e autocontida que acompanha cada pixel de 10 m desmatado segundo 
 PRODES entre 2016 e 2024, ano a ano, no MapBiomas 10 m (coleção 4) de 2017 a
 2025. Filtros por ano do desmatamento, bioma, UF e zona agroecológica (AEZ).
 
-**Abrir:** https://gierrejunior.github.io/historico-pixel-desmatamento/
+**Abrir:** https://gierrejunior.github.io/historico-pixel-desmatamento/ (v1)
+· **v2, em avaliação:** https://gierrejunior.github.io/historico-pixel-desmatamento/v2/
 
 ## O que tem na página
 
@@ -64,3 +65,26 @@ PRODES e MapBiomas não são o mesmo mapa:
 2.120.876.129 pixels no cubo de trajetórias, os mesmos do PRODES rasterizado, ano
 a ano e bioma a bioma. A área por bioma da página bate com as tabelas de origem
 dentro de 10 ha.
+
+## v2 (em avaliação)
+
+https://gierrejunior.github.io/historico-pixel-desmatamento/v2/ — acrescente `?validar`
+para a página conferir a si mesma contra o PRODES rasterizado.
+
+- **Filtros de três estados** (+ precisa ter, − não pode ter): ano do desmatamento,
+  bioma (PRODES ou municipal), UF, UF × bioma, AEZ, AEZ × UF × bioma (o território)
+  e tipo de trajetória.
+- **Defasagem montável:** o MapBiomas leva 1 a 2 anos para ver o corte do PRODES; a
+  página deixa olhar o uso sem defasagem, 1, 2, 3... anos depois do corte, e o
+  Sankey parte de uma coluna "Desmatado pelo PRODES (era vegetação nativa)".
+- **Vegetação nativa separada pelo que aconteceu com ela:** até o uso aparecer,
+  nunca vista convertida, em regeneração, regenerada.
+- **Perguntas e respostas**, matriz ano do desmatamento × anos depois do corte,
+  comparações (Sankey por categoria, linhas, barras, treemap, sunburst), tabela com
+  Σ, trajetórias, detalhe por classe, seguir uma área, CSV, PNG e link.
+- **Mapa com linha do tempo** (em preparação): o que cada área virou, ano a ano.
+
+Brasil, desmatamento 2016-2024, **1 ano depois do corte**: 50,5% pastagem, 5,8%
+agricultura, 22,8% ainda vegetação nativa — 15,8% que o MapBiomas nunca viu
+convertida (desacordo entre os mapas), 0,8% regenerada e o resto em que o uso
+ainda não apareceu.
