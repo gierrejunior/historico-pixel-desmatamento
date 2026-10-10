@@ -137,6 +137,7 @@ tr.soma td{font-weight:600;background:color-mix(in srgb,var(--verde) 20%,transpa
 .matriz td{text-align:center;font-size:11.5px;padding:5px 4px;min-width:44px}
 .matriz td:first-child{text-align:left;font-weight:600;min-width:60px}
 .matriz th{text-align:center;line-height:1.25}
+.matriz thead tr:last-child th{text-transform:none}
 .matriz th small{font-weight:400;text-transform:none;letter-spacing:0}
 .mapaCtl{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin-bottom:8px;font-size:12.5px;color:var(--suave)}
 .mapaCtl input[type=range]{width:min(320px,60vw);accent-color:var(--verde)}
@@ -159,6 +160,7 @@ details.dobra>summary::-webkit-details-marker{display:none}
 details.dobra>summary>span::before{content:'▸ ';font-size:10px}
 details.dobra[open]>summary>span::before{content:'▾ '}
 details.dobra[open]>summary{margin-bottom:8px}
+details.dobra>summary .nOp{font-weight:400;letter-spacing:0;text-transform:none;font-size:11px;margin-left:2px}
 details.dobra>summary button{font-size:10.5px;padding:1px 7px;text-transform:none;letter-spacing:0;color:var(--suave)}
 .anim{font-weight:600}
 .pergunta{margin:2px 0 12px}
@@ -251,9 +253,9 @@ details.gaveta[open]>summary{margin-bottom:10px}
    <div class="acoes"><button id="animAD" class="anim" title="mostra as barras ano a ano">▶ animar</button><button class="btnAntes" aria-pressed="false" title="mostra também os mapas do MapBiomas dos 3 anos antes do desmatamento — servem para explicar a defasagem">mostrar os anos antes do desmatamento</button><button id="pngAD">PNG</button></div></div>
   <div class="grafico" id="gAD"></div>
  </section>
- <details class="painel gaveta" id="gMat"><summary>Matriz ano a ano: cada ano de desmatamento, do PRODES a t+8 (para quem quer o detalhe)</summary>
-  <div class="pcab"><div><h2>Matriz: ano do desmatamento × anos depois do desmatamento<span id="i_mat"></span></h2><p id="matSub"></p></div>
-   <div class="acoes"><button class="btnAntes" aria-pressed="false" title="mostra também os mapas do MapBiomas dos 3 anos antes do desmatamento — servem para explicar a defasagem">mostrar os anos antes do desmatamento</button>
+ <details class="painel gaveta" id="gMat"><summary>Matriz ano a ano: cada ano de desmatamento, do PRODES a 2025 (para quem quer o detalhe)</summary>
+  <div class="pcab"><div><h2><span id="matTit">Matriz: ano do desmatamento × ano do MapBiomas</span><span id="i_mat"></span></h2><p id="matSub"></p></div>
+   <div class="acoes"><span class="seg mini" role="group" aria-label="Colunas da matriz" id="segMatCol"><button data-mc="cal">anos do MapBiomas</button><button data-mc="rel">anos depois do desmatamento (t+N)</button></span><button class="btnAntes" aria-pressed="false" title="mostra também os mapas do MapBiomas dos 3 anos antes do desmatamento — servem para explicar a defasagem">mostrar os anos antes do desmatamento</button>
    <label style="font-size:12.5px;color:var(--suave)">mostrar <select id="mNo" aria-label="o que mostrar na matriz"></select></label></div></div>
   <div class="tabwrap" id="mat"></div>
  </details>
@@ -403,7 +405,9 @@ const CMP={ano:(a,b)=>a-b, bioma:(a,b)=>ordB(a)-ordB(b), aez:(a,b)=>aezN(a)-aezN
   tipo:(a,b)=>D.tipos.findIndex(t=>t[1]===a)-D.tipos.findIndex(t=>t[1]===b),
   aezufbioma:(a,b)=>aezN(a.split(' · ')[0])-aezN(b.split(' · ')[0]) || a.localeCompare(b,'pt-BR')};
 const ORD={};
-for(const def of ['prodes','mun']){ ORD[def]={}; for(const [d] of DIMS) ORD[def][d]=[...new Set(KEYS[def][d])].sort(CMP[d]||((a,b)=>a.localeCompare(b,'pt-BR'))); }
+// "fora dos territórios" (117 ha, explicado no ⓘ de UF) vai sempre por último
+const foraPorUltimo=(a,b)=>a.includes(FORA)-b.includes(FORA);
+for(const def of ['prodes','mun']){ ORD[def]={}; for(const [d] of DIMS) ORD[def][d]=[...new Set(KEYS[def][d])].sort((a,b)=>foraPorUltimo(a,b)||(CMP[d]||((x,y)=>x.localeCompare(y,'pt-BR')))(a,b)); }
 // área de território por chave (só onde o denominador existe: bioma municipal, ou dimensões sem bioma)
 function areaTerritorio(d,k,def){
   if(d==='ano'||d==='tipo') return null;
@@ -414,7 +418,7 @@ function areaTerritorio(d,k,def){
 }
 
 // ---------------------------------------------------------------- estado da tela
-const S={f:{}, def:'prodes', vista:'historia', val:'ha', ano:NA-1, lente:'n', N:1, mNo:'nat', antes:false, aba:'virou', eixos:[], graf:'sankey', col:'lag', linhaNo:null,
+const S={f:{}, def:'prodes', vista:'historia', val:'ha', ano:NA-1, lente:'n', N:1, mNo:'nat', matCol:'cal', antes:false, aba:'virou', eixos:[], graf:'sankey', col:'lag', linhaNo:null,
          seguir:null, sel:new Set(), ord:['area',-1], tjN:25, busca:{}};
 for(const [d] of DIMS) S.f[d]=new Map();
 const V=()=>D.vistas[S.vista];
@@ -519,14 +523,19 @@ function compRel(R,c){ const v=new Float64Array(NE);
   return v; }
 
 // ---------------------------------------------------------------- filtros
-// Os filtros longos vêm recolhidos (abrem sozinhos se tiverem filtro ativo): a coluna assustava.
-const DOBRA=new Set(['ufbioma','aezufbioma','tipo']);
+// Todo grupo de filtro é uma gaveta igual, com o número de opções à mostra. Regra de abertura, a mesma
+// para todos: abre se tiver até 30 opções ou filtro ativo; as listas longas (UF × bioma, AEZ × UF × bioma)
+// vêm fechadas. Abrir ou fechar à mão fica guardado.
+const ABERTO={}, CURTA=30;
 function montaFiltros(){
-  $('filtros').innerHTML=DIMS.map(([d,n])=>(DOBRA.has(d)? `<details class="cx dobra" data-dim="${d}"${S.f[d].size?' open':''}><summary><span>${n}<span id="i_${d}"></span></span><button data-limpa="${d}">limpar</button></summary>`
-      : `<div class="cx" data-dim="${d}"><h3><span>${n}<span id="i_${d}"></span></span><button data-limpa="${d}">limpar</button></h3>`)+
+  $('filtros').innerHTML=DIMS.map(([d,n])=>{ const ab=ABERTO[d]??(S.f[d].size>0||ORD[S.def][d].length<=CURTA);
+    return `<details class="cx dobra" data-dim="${d}"${ab?' open':''}><summary><span>${n}<span id="i_${d}"></span><small class="nOp" id="n_${d}"></small></span><button data-limpa="${d}">limpar</button></summary>`+
     (d==='bioma'?`<div class="seg mini" role="group" aria-label="Definição de bioma" style="margin-bottom:8px"><button data-def="prodes">PRODES (físico)</button><button data-def="mun">municipal</button></div>`:'')+
     (LONGAS.has(d)?`<input class="busca" data-busca="${d}" placeholder="buscar…" aria-label="buscar em ${n}">`:'')+
-    `<div class="${LONGAS.has(d)?'lista':''}" id="f_${d}"></div>`+(DOBRA.has(d)?'</details>':'</div>')).join('');
+    `<div class="${LONGAS.has(d)?'lista':''}" id="f_${d}"></div></details>`; }).join('');
+  document.querySelectorAll('#filtros details.dobra').forEach(e=>e.addEventListener('toggle',()=>{ ABERTO[e.dataset.dim]=e.open; }));
+  // os ⓘ dos filtros: os grupos acabaram de ser criados, então o ⓘ entra agora (antes ficava sem)
+  for(const [d] of DIMS) if(INFO[d]) $('i_'+d).appendChild(info(...INFO[d]));
 }
 function pintaFiltros(){
   const K=KEYS[S.def]; atualizaInc();
@@ -536,6 +545,7 @@ function pintaFiltros(){
     $('f_'+d).innerHTML=ORD[S.def][d].filter(k=>!q||k.toLowerCase().includes(q)).map(k=>{ const st=S.f[d].get(k)||0, v=cont.get(k)||0;
       const tit= d==='tipo'? D.tipos.find(t=>t[1]===k)[2] : '';
       return `<button class="chip" data-d="${d}" data-k="${esc(k)}" data-e="${st}"${(!v&&!st)?' data-z="1"':''}${tit?` title="${esc(tit)}"`:''}><span class="m">${st===1?'+':st===2?'−':'·'}</span>${esc(k)}<small>${fhaC(v)}</small></button>`; }).join('');
+    const nOp=ORD[S.def][d].length, nf=S.f[d].size; $('n_'+d).textContent=` · ${nOp} opções`+(nf?` · ${nf} no filtro`:'');
   }
   document.querySelectorAll('[data-def]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.def===S.def));
   const n=DIMS.reduce((s,[d])=>s+S.f[d].size,0)+(S.seguir?1:0);
@@ -946,30 +956,47 @@ function perguntas(ctx){
 
 // ---------------------------------------------------------------- matriz ano × anos depois
 function matriz(ctx){
-  const ids=ctx.ids, K0=S.antes?-3:0, nk=S.antes?12:9, op=MAT_OP.find(o=>o[0]===S.mNo)||MAT_OP[0];
-  const por=new Map();
-  const add=(A,j,e,v)=>{ const r=D.anos_mb[j]-A-K0; if(r<0||r>=nk) return; if(!por.has(A)) por.set(A,Array.from({length:nk},()=>new Float64Array(NE))); por.get(A)[r][e]+=v; };
+  // Duas formas: colunas = anos do MapBiomas (calendário, padrão: o tempo passa da esquerda para a direita
+  // e cada ano de desmatamento entra na sua vez, em escada) ou colunas = anos depois do desmatamento (t+N).
+  const ids=ctx.ids, op=MAT_OP.find(o=>o[0]===S.mNo)||MAT_OP[0], cal=S.matCol==='cal';
+  const K0=cal?0:(S.antes?-3:0), nk=cal?NA:(S.antes?12:9);
+  const col=(A,j)=>cal? j : D.anos_mb[j]-A-K0;
+  const por=new Map(), linha=A=>{ if(!por.has(A)) por.set(A,Array.from({length:nk},()=>new Float64Array(NE))); return por.get(A); };
   for(const i of ids){ const A=coorteDe(i);
-    if(S.seguir){ const x=D.tj[i]; for(let q=0;q<x.length;q+=2){ if(!casa(x[q])) continue; for(let j=0;j<NA;j++) add(A,j,x[q].charCodeAt(j)-97,x[q+1]); } }
-    else { for(let j=0;j<NA;j++){ const r=D.anos_mb[j]-A-K0; if(r<0||r>=nk) continue; if(!por.has(A)) por.set(A,Array.from({length:nk},()=>new Float64Array(NE))); somaCompy(por.get(A)[r],i,j); } } }
+    if(S.seguir){ const x=D.tj[i]; for(let q=0;q<x.length;q+=2){ if(!casa(x[q])) continue; for(let j=0;j<NA;j++){ const r=col(A,j); if(r>=0&&r<nk) linha(A)[r][x[q].charCodeAt(j)-97]+=x[q+1]; } } }
+    else { for(let j=0;j<NA;j++){ const r=col(A,j); if(r<0||r>=nk) continue; somaCompy(linha(A)[r],i,j); } } }
   if(!por.size){ $('mat').innerHTML='<div class="vazio">Nenhuma área no recorte.</div>'; return; }
   const cor=(op[0]==='nat'? D.vistas.historia.nos[0][1] : D.vistas.historia.nos[D.vistas.historia.de[op[2][0]]][1]);
-  const realce=r=>S.lente==='n'&&r+K0===S.N? ' style="outline:2px dashed var(--tinta);outline-offset:-2px"' : '';
-  const rotK=k=>tK(k)+(k===0?'<br><small>mesmo ano</small>':'');
-  // a coluna PRODES: por definição, vegetação nativa até a supressão
+  const ANT='color-mix(in srgb,'+D.vistas.historia.nos[0][1]+' 14%,var(--fundo))';
+  const tracej=' style="outline:2px dashed var(--tinta);outline-offset:-2px"';
+  const realce=r=>cal? ((S.lente==='cal'&&r===S.ano)? tracej : '') : (S.lente==='n'&&r+K0===S.N? tracej : '');
+  const celula=(v,tip,extra)=>`<td style="background:color-mix(in srgb,${cor} ${Math.round(v*0.85)}%,var(--fundo));${extra||''}" data-t="${esc(tip)}">${v>=10?Math.round(v):nf1.format(v)}</td>`;
+  // a coluna PRODES: por definição, vegetação nativa até o desmatamento
   const prodesCel= op[0]==='nat'? 100 : ['antes','nunca','regen'].includes(op[0])? null : 0;
-  let h=`<table class="matriz"><thead><tr><th rowspan="2">Desmatado<br>pelo PRODES em</th>`+
-    (S.antes? `<th colspan="${-K0}" style="text-align:center">antes do desmatamento</th>` : `<th rowspan="2">PRODES</th>`)+
+  let h=`<table class="matriz"><thead><tr><th rowspan="2">Desmatado<br>pelo PRODES em</th><th rowspan="2">PRODES</th>`;
+  if(cal) h+=`<th colspan="${NA}" style="text-align:center">ano do MapBiomas →</th></tr><tr>${D.anos_mb.map((a,j)=>`<th${realce(j)}>${a}</th>`).join('')}</tr>`;
+  else h+=(S.antes? `<th colspan="${-K0}" style="text-align:center">antes do desmatamento</th>` : '')+
     `<th>ano do desmatamento</th><th colspan="${nk+K0-1}" style="text-align:center">anos depois do desmatamento →</th></tr>`+
-    `<tr>${Array.from({length:nk},(_,r)=>`<th${realce(r)}>${rotK(r+K0)}</th>`).join('')}</tr></thead><tbody>`;
+    `<tr>${Array.from({length:nk},(_,r)=>`<th${realce(r)}>${tK(r+K0)+(r+K0===0?'<br><small>mesmo ano</small>':'')}</th>`).join('')}</tr>`;
+  h+='</thead><tbody>';
   for(const A of [...por.keys()].sort()){ h+=`<tr><td>${A}</td>`;
-    if(!S.antes) h+= prodesCel==null? `<td data-t="${esc('Pelo PRODES, vegetação nativa até a supressão; esta classificação só existe a partir do MapBiomas')}">—</td>`
-      : `<td style="background:color-mix(in srgb,${cor} ${Math.round(prodesCel*0.85)}%,var(--fundo))" data-t="${esc(`<b>PRODES ${A}</b><br>Pelo PRODES, 100% vegetação nativa até a supressão`)}">${prodesCel}</td>`;
-    por.get(A).forEach((vE,r)=>{ const t=soma(vE); if(!t){ h+='<td></td>'; return; } const v=somaEst(vE,op[2])/t*100;
-      h+=`<td style="background:color-mix(in srgb,${cor} ${Math.round(v*0.85)}%,var(--fundo))" data-t="${esc(`<b>Desmatado em ${A}</b>, ${r+K0>0?(r+K0)+' ano(s) depois':r+K0===0?'no ano do desmatamento':(-(r+K0))+' ano(s) antes'} (MapBiomas ${A+r+K0})<br>${op[1]}: ${fp(v)}`)}">${v>=10?Math.round(v):nf1.format(v)}</td>`; });
+    h+= prodesCel==null? `<td data-t="${esc('Pelo PRODES, vegetação nativa até o desmatamento; esta classificação só existe a partir do MapBiomas')}">—</td>`
+      : `<td style="background:color-mix(in srgb,${cor} ${Math.round(prodesCel*0.85)}%,var(--fundo))" data-t="${esc(`<b>PRODES ${A}</b><br>Pelo PRODES, 100% vegetação nativa até o desmatamento`)}">${prodesCel}</td>`;
+    por.get(A).forEach((vE,r)=>{
+      const ano=cal? D.anos_mb[r] : A+r+K0, k=ano-A, t=soma(vE);
+      if(cal && k<0 && !S.antes){ h+=`<td style="background:${ANT}" data-t="${esc(`<b>Desmatado em ${A}</b><br>Em ${ano} ainda não tinha sido desmatado: pelo PRODES, vegetação nativa.`)}"></td>`; return; }
+      if(!t){ h+='<td></td>'; return; }
+      const v=somaEst(vE,op[2])/t*100, quando=k>0? `${k} ano${k>1?'s':''} depois (${tK(k)})` : k===0? 'no ano do desmatamento (t)' : `${-k} ano${k<-1?'s':''} antes (${tK(k)})`;
+      const extra=(cal&&k===0? 'box-shadow:inset 3px 0 0 var(--tinta);' : '')+(k<0? 'opacity:.6;' : '');
+      h+=celula(v,`<b>Desmatado em ${A}</b>, MapBiomas ${ano}: ${quando}<br>${op[1]}: ${fp(v)}`,extra); });
     h+='</tr>'; }
   $('mat').innerHTML=h+'</tbody></table>';
-  $('matSub').innerHTML=`Cada linha é um ano de desmatamento do PRODES. A coluna "PRODES" é o ponto de partida: pelo PRODES, 100% vegetação nativa até a supressão. As outras são mapas do MapBiomas contados a partir dele: "t" é o mapa do mesmo ano do desmatamento (o ano PRODES), "t+1" o do ano seguinte${S.antes?', "t−1" o do ano anterior':''}. O número é o % da área em <b>${esc(minusc(op[1]))}</b> (passe o mouse para ver o ano do mapa). A escada vem do MapBiomas 10 m ir só de 2017 a 2025: o desmatamento de 2016 começa em +1 e o de 2024 termina em +1.`;
+  $('matTit').textContent= cal? 'Matriz: ano do desmatamento × ano do MapBiomas' : 'Matriz: ano do desmatamento × anos depois do desmatamento';
+  document.querySelectorAll('#segMatCol [data-mc]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mc===S.matCol));
+  $('matSub').innerHTML= (cal?
+    `Cada linha é um ano de desmatamento do PRODES; as colunas são os anos do MapBiomas, então o tempo passa da esquerda para a direita e cada desmatamento entra na sua vez (a escada). A coluna "PRODES" é o ponto de partida: pelo PRODES, 100% vegetação nativa até o desmatamento. A barra escura à esquerda de uma célula marca o ano do desmatamento (t); antes dele, em verde-claro, a área ainda não tinha sido desmatada${S.antes?' — com "mostrar os anos antes", essas células mostram o que o MapBiomas já via (mais apagadas)':''}.`
+    : `Cada linha é um ano de desmatamento do PRODES; as colunas contam os anos a partir dele: "t" é o MapBiomas do mesmo ano do desmatamento (o ano PRODES), "t+1" o do ano seguinte${S.antes?', "t−1" o do ano anterior':''}. A coluna "PRODES" é o ponto de partida: pelo PRODES, 100% vegetação nativa até o desmatamento. A escada vem do MapBiomas 10 m ir só de 2017 a 2025: o desmatamento de 2016 começa em t+1 e o de 2024 termina em t+1.`)+
+    ` O número é o % da área em <b>${esc(minusc(op[1]))}</b>; passe o mouse para ver o ano do mapa. O tracejado marca o ano escolhido em "uso da terra no MapBiomas".`;
 }
 
 // ---------------------------------------------------------------- PRODES × MapBiomas
@@ -1101,7 +1128,7 @@ function tabela(ctx){
     return; }
   const d1=S.eixos[0], d2=S.eixos[1];
   LINHAS_TAB=[...agrupa(ids,d1)].map(([k,is])=>linhaDe(k,is,d1)).filter(r=>r.a>0);
-  const [oc,od]=S.ord; LINHAS_TAB.sort((a,b)=> oc==='nome'? od*a.nome.localeCompare(b.nome,'pt-BR') : od*((isFinite(a[oc])?a[oc]:-1)-(isFinite(b[oc])?b[oc]:-1)));
+  const [oc,od]=S.ord; LINHAS_TAB.sort((a,b)=> foraPorUltimo(String(a.nome),String(b.nome)) || (oc==='nome'? od*a.nome.localeCompare(b.nome,'pt-BR') : od*((isFinite(a[oc])?a[oc]:-1)-(isFinite(b[oc])?b[oc]:-1))));
   const cols=[['nome',DN[d1]+(TEM_BIOMA.has(d1)?(S.def==='prodes'?' (PRODES)':' (municipal)'):'')],['a','Área (ha)'],['ps','% do recorte'],['br','% do desm. Brasil'],['terr','% do território'],
     ...RESUMO_COLS.map(([c,n])=>[c,n]),['comp','Composição']];
   const th=([c,n])=>c==='comp'?`<th>${n}</th>`:`<th><button data-ord="${c}">${n}${S.ord[0]===c?(S.ord[1]<0?' ▾':' ▴'):''}</button></th>`;
@@ -1208,7 +1235,7 @@ function paraURL(){
   p.set('def',S.def); p.set('v',S.vista); p.set('g',S.graf); p.set('ano',D.anos_mb[S.ano]); p.set('l',S.lente); p.set('n',S.N); p.set('m',S.mNo);
   if(S.val!=='ha') p.set('val',S.val); p.set('col',S.col); if(S.eixos.length) p.set('e',S.eixos.join(','));
   if(S.linhaNo!=null) p.set('ln',S.linhaNo); if(S.seguir) p.set('s',`${S.seguir.vista}:${S.seguir.j}:${S.seguir.no}`);
-  if(S.ord[0]!=='area'||S.ord[1]!==-1) p.set('o',S.ord.join(':')); if(S.antes) p.set('antes','1'); if(S.aba!=='virou') p.set('aba',S.aba);
+  if(S.ord[0]!=='area'||S.ord[1]!==-1) p.set('o',S.ord.join(':')); if(S.antes) p.set('antes','1'); if(S.matCol!=='cal') p.set('mc',S.matCol); if(S.aba!=='virou') p.set('aba',S.aba);
   return location.origin+location.pathname+'?'+p.toString();
 }
 function deURL(){
@@ -1220,7 +1247,7 @@ function deURL(){
   const an=D.anos_mb.indexOf(+p.get('ano')); if(an>=0) S.ano=an;
   if(p.get('val')==='pct') S.val='pct'; if(['cal','rel','lag'].includes(p.get('col'))) S.col=p.get('col');
   if(['n','cal'].includes(p.get('l'))) S.lente=p.get('l'); if(p.get('n')!=null&&p.get('n')!=='') S.N=Math.max(0,Math.min(8,+p.get('n')||0));
-  if(MAT_OP.some(o=>o[0]===p.get('m'))) S.mNo=p.get('m'); if(p.get('antes')==='1') S.antes=true; if(p.get('aba')) S.aba=p.get('aba');
+  if(MAT_OP.some(o=>o[0]===p.get('m'))) S.mNo=p.get('m'); if(p.get('antes')==='1') S.antes=true; if(p.get('mc')==='rel') S.matCol='rel'; if(p.get('aba')) S.aba=p.get('aba');
   if(p.get('e')) S.eixos=p.get('e').split(',').filter(d=>DN[d]).slice(0,2);
   if(p.get('ln')!=null&&p.get('ln')!=='') S.linhaNo=+p.get('ln');
   if(p.get('s')){ const [v,j,no]=p.get('s').split(':'); if(D.vistas[v]) S.seguir={vista:v,j:+j,no:+no}; }
@@ -1247,6 +1274,7 @@ $('segGraf').onclick=e=>{ const b=e.target.closest('[data-g]'); if(b){ S.graf=b.
 $('segVista').onclick=e=>{ const b=e.target.closest('[data-v]'); if(b&&b.dataset.v!==S.vista){ S.vista=b.dataset.v; S.linhaNo=null; montaSeguir(); tudo(); } };
 $('segCol').onclick=e=>{ const b=e.target.closest('[data-c]'); if(b){ S.col=b.dataset.c; tudo(); } };
 $('segVal').onclick=e=>{ const b=e.target.closest('[data-val]'); if(b){ S.val=b.dataset.val; tudo(); } };
+$('segMatCol').onclick=e=>{ const b=e.target.closest('[data-mc]'); if(b){ S.matCol=b.dataset.mc; tudo(); } };
 document.querySelectorAll('.btnAntes').forEach(b=>b.onclick=()=>{ S.antes=!S.antes; if(!S.antes&&M.k<0) M.k=0; tudo(); });
 $('selLente').innerHTML='<optgroup label="contado a partir do desmatamento (t = ano PRODES)">'+[0,1,2,3,4,5,6,7,8].map(n=>`<option value="n${n}">${n===0?'t — mesmo ano do desmatamento':`t+${n} — ${n} ano${n>1?'s':''} depois do desmatamento`}${n===1?' (padrão)':''}</option>`).join('')+
   '</optgroup><optgroup label="ano fixo do MapBiomas (todos no mesmo mapa)">'+D.anos_mb.map((a,j)=>`<option value="c${j}">${a}</option>`).join('')+'</optgroup>';
@@ -1273,11 +1301,11 @@ function info(texto,titulo){ const b=document.createElement('button'); b.classNa
   return b; }
 const INFO={
   ano:['Ano PRODES: vai de agosto do ano anterior a julho do ano. O "2020" é a supressão de ago/2019 a jul/2020.','Ano do desmatamento'],
-  bioma:['<b>PRODES (físico)</b>: o limite do bioma como o INPE mapeia. <b>Municipal</b>: o rótulo do município inteiro (Mun_UF_Biomas), o recorte dos modelos econômicos e das AEZ. Trocar a definição limpa os filtros de bioma.','Bioma'],
-  uf:['A UF do município (rótulo municipal). Bate com a UF do raster mestre em 99,98% da área.','UF'],
-  ufbioma:['O par UF × bioma, na definição de bioma escolhida acima. Com bioma municipal, é o "uf_bioma" dos modelos.','UF × bioma'],
-  aez:['Zonas agroecológicas do GTAP v9 (AEZ18). No Brasil, 2 a 6 e 10 a 12. "sem AEZ" são as lacunas do GTAP na costa e nas fronteiras.','AEZ'],
-  aezufbioma:['O território do NORAD: AEZ × UF × bioma. Com bioma municipal, são os 122 territórios + 30 áreas sem AEZ.','AEZ × UF × bioma'],
+  bioma:['<b>PRODES (físico)</b>: o limite do bioma como o INPE mapeia. <b>Municipal</b>: o rótulo do município inteiro (Mun_UF_Biomas), o recorte dos modelos econômicos e das AEZ. Trocar a definição limpa os filtros de bioma. No bioma municipal aparece também "Fora dos territórios" (117 ha na fronteira e no litoral): veja o ⓘ de UF.','Bioma'],
+  uf:['A UF do município (rótulo municipal). Bate com a UF do raster mestre em 99,98% da área.<br><br><b>Fora dos territórios (117 ha, 0,0006% do desmatamento):</b> pixels do PRODES cujo centro cai fora de todos os municípios da malha municipal (Mun_UF_Biomas), de onde vêm UF, AEZ e território — por isso ficam sem eles. São beiradas: 98% dos 377 pedaços ficam a menos de 50 m de um município. Surgem porque o PRODES e a malha municipal traçam o limite do país de jeitos um pouco diferentes. <b>Três quartos (88 ha) estão na fronteira internacional</b>: Amazônia (54 ha, RO, AC e AM na divisa com Bolívia, Peru e Colômbia) e Pantanal (34 ha, MT na divisa com a Bolívia). <b>O resto (29 ha) está no litoral</b>: Mata Atlântica (13 ha), Amapá (9 ha) e Caatinga (7 ha, no Ceará) — praias, ilhas e mangues fora da malha. Entram nos totais e no bioma do PRODES; nas listas ficam sempre por último.','UF'],
+  ufbioma:['O par UF × bioma, na definição de bioma escolhida acima. Com bioma municipal, é o "uf_bioma" dos modelos. "Fora dos territórios" (117 ha na fronteira e no litoral): veja o ⓘ de UF.','UF × bioma'],
+  aez:['Zonas agroecológicas do GTAP v9 (AEZ18). No Brasil, 2 a 6 e 10 a 12. "sem AEZ" são as lacunas do GTAP na costa e nas fronteiras. "Fora dos territórios" (117 ha na fronteira e no litoral): veja o ⓘ de UF.','AEZ'],
+  aezufbioma:['O território do NORAD: AEZ × UF × bioma. Com bioma municipal, são os 122 territórios + 30 áreas sem AEZ. "Fora dos territórios" (117 ha na fronteira e no litoral): veja o ⓘ de UF.','AEZ × UF × bioma'],
   tipo:['O que a área desmatada pelo PRODES fez de 2017 a 2025, por regra fixa (passe o mouse em cada um). "MapBiomas não confirma o desmatamento" = o PRODES apontou o desmatamento, mas o MapBiomas não mostra uso em nenhum ano.','Tipo de trajetória'],
   seguir:['Escolha o que a área era num ano (ou clique num bloco do Sankey): os gráficos passam a mostrar só essa área, antes e depois. Usa as trajetórias completas embutidas na página; a cobertura aparece nos cartões.','Seguir uma área'],
   kpi:['Os números do recorte filtrado, no ano de uso escolhido ao lado. "% do território" só aparece quando a área do território é conhecida (bioma municipal, UF, AEZ).','Números'],
@@ -1292,7 +1320,7 @@ const INFO={
   acum:['Cada barra soma o desmatamento do PRODES até aquele ano (2016 em diante) e o pinta pelo que o MapBiomas mostra naquele ano. É a forma mais direta de ver o desmatamento crescer e o que ele virou. Os filtros da esquerda valem aqui.','Desmatamento acumulado'],
   mapa:['Cada pixel do mapa (de ~75 m no zoom máximo a alguns km de longe) mostra um ponto de 10 m desmatado dentro dele. <b>Desmatamento acumulado</b>: em cada ano, tudo o que o PRODES apontou como desmatado até ali, pintado pelo que o MapBiomas mostra naquele ano — a mancha cresce. <b>Só o desmatamento de cada ano</b>: a cada passo, apenas o PRODES daquele ano (onde se desmatou), pintado pelo que ele virou no MapBiomas escolhido acima dos números (padrão: t+1, o ano seguinte). <b>Anos depois do desmatamento</b>: cada área no seu ano relativo ao desmatamento (t+1 = o MapBiomas do ano seguinte ao desmatamento dela); como cada ano de desmatamento tem um número diferente de anos depois, a mancha encolhe à medida que os mais recentes saem. <b>Cor pelo ano do desmatamento</b>: onde se desmatou em cada ano. Os filtros de ano e de tipo da esquerda valem para o mapa; os de UF, bioma e AEZ não (use o zoom).','Mapa'],
   perg:['Respostas diretas para o recorte filtrado. "Quando o MapBiomas vê a supressão" conta o ano do primeiro uso a partir do ano PRODES; "voltou a ser vegetação" exige 2 anos seguidos de vegetação nativa depois de uso.','Perguntas e respostas'],
-  mat:['Cada linha é um ano de desmatamento; cada coluna, o MapBiomas de quantos anos antes (t−1...) ou depois (t+1...) do ano PRODES (t). Uma linha que cai de ~80% para ~20% entre t−1 e t+1 é a defasagem entre PRODES e MapBiomas; o que sobra a partir de t+2 é, na maior parte, área em que o MapBiomas não confirma o desmatamento ou que voltou a ser vegetação.','Matriz'],
+  mat:['Cada linha é um ano de desmatamento do PRODES. <b>Anos do MapBiomas</b> (padrão): as colunas são o calendário, 2017 a 2025, e cada desmatamento entra no seu ano — a escada mostra o tempo passando; a barra escura marca o ano do desmatamento. <b>Anos depois do desmatamento</b>: todos alinhados pelo ano PRODES (t, t+1, t+2...), para comparar anos de desmatamento no mesmo ponto da história. Uma linha que cai de ~80% para ~20% entre t−1 e t+1 é a defasagem entre PRODES e MapBiomas; o que sobra a partir de t+2 é, na maior parte, área em que o MapBiomas não confirma o desmatamento ou que voltou a ser vegetação.','Matriz'],
   lente:['Qual mapa do MapBiomas os números usam. <b>t</b> é o ano PRODES do desmatamento (agosto do ano anterior a julho). <b>t+1</b> é o MapBiomas do ano seguinte, <b>t+2</b> o de dois anos depois, e assim por diante: cada ano de desmatamento é lido no seu próprio ano (o de 2019 em t+2 é o MapBiomas 2021; o de 2022, o de 2024). Esse intervalo é a <b>defasagem</b> (lag): o MapBiomas leva 1 a 2 anos para registrar o desmatamento do PRODES, por isso o padrão é t+1. <b>Ano fixo</b>: todos os anos de desmatamento lidos no mesmo mapa do MapBiomas (os desmatados depois dele aparecem ainda como vegetação).','Uso da terra no MapBiomas'],
 };
 for(const [k,[t,tt]] of Object.entries(INFO)){ const el=$('i_'+k); if(el) el.appendChild(info(t,tt)); }
