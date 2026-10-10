@@ -9,25 +9,30 @@ ao endereço para a página conferir a si mesma contra o PRODES rasterizado.
 
 ## O que tem na página
 
+O ponto de partida é o PRODES: pela definição dele, toda esta área era vegetação nativa
+até a supressão. O MapBiomas é a lente do que veio depois.
+
+- **Abas pelas perguntas:** *O que virou* (desmatamento acumulado ano a ano, antes e
+  depois da supressão, matriz) · *PRODES × MapBiomas* (onde e quanto os mapas discordam) ·
+  *Onde* (mapa) · *Ano a ano* (Sankey, linhas, barras, treemap e sunburst) ·
+  *Cruzamentos* · *Trajetórias* · *Sobre os dados*.
 - **Filtros de três estados** (+ precisa ter, − não pode ter): ano do desmatamento,
   bioma (PRODES ou municipal), UF, UF × bioma, AEZ, AEZ × UF × bioma (o território)
   e tipo de trajetória.
-- **Defasagem montável:** o MapBiomas leva 1 a 2 anos para ver o corte do PRODES; a
-  página deixa olhar o uso sem defasagem, 1, 2, 3... anos depois do corte, e o
-  Sankey parte de uma coluna "Desmatado pelo PRODES (era vegetação nativa)".
-- **Vegetação nativa separada pelo que aconteceu com ela:** até o uso aparecer,
-  nunca vista convertida, em regeneração, regenerada.
-- **Perguntas e respostas**, matriz ano do desmatamento × anos depois do corte,
-  comparações (Sankey por categoria, linhas, barras, treemap, sunburst), tabela com
-  Σ, trajetórias, detalhe por classe, seguir uma área, CSV, PNG e link.
-- **Mapa com linha do tempo:** escolha o ano PRODES e aperte ▶ para ver o que cada
-  área virou, ano a ano (calendário ou anos depois do corte); clique num ponto para
-  ver a trajetória dele. Pixel de ~75 m no zoom máximo.
+- **Defasagem montável:** o MapBiomas leva 1 a 2 anos para ver a supressão do PRODES;
+  a página deixa olhar o uso no ano da supressão, 1, 2, 3... anos depois (padrão: 1).
+- **Vegetação nativa separada pelo que aconteceu com ela:** MapBiomas ainda não viu a
+  supressão (o uso aparece depois), MapBiomas não confirma o desmatamento (vegetação
+  nativa em todos os anos até 2025), voltou a ser vegetação (1º ano; 2+ anos).
+- **Mapa com linha do tempo:** desmatamento acumulado, só o de cada ano, anos depois
+  da supressão, ano do PRODES e onde os mapas discordam; aperte ▶ e clique num ponto
+  para ver a trajetória dele. Pixel de ~75 m no zoom máximo.
+- Animações (▶), CSV, PNG e link que reabre a mesma tela.
 
-Brasil, desmatamento 2016-2024, **1 ano depois do corte**: 50,5% pastagem, 5,8%
-agricultura, 22,8% ainda vegetação nativa — 15,8% que o MapBiomas nunca viu
-convertida (desacordo entre os mapas), 0,8% regenerada e o resto em que o uso
-ainda não apareceu.
+Brasil, desmatamento 2016-2024, **1 ano depois da supressão**: 50,5% pastagem, 5,8%
+agricultura, 22,8% ainda vegetação nativa no MapBiomas — 15,8% em que o MapBiomas não
+confirma o desmatamento (desacordo entre os mapas), e o resto em que o uso ainda não
+apareceu ou que voltou a ser vegetação.
 
 ## De onde vêm os dados
 
