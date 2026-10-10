@@ -1191,7 +1191,7 @@ async function iniciaMapa(){
   pintaCtlMapa();
 }
 new IntersectionObserver((es,o)=>{ if(es.some(x=>x.isIntersecting)){ o.disconnect(); iniciaMapa(); } },{rootMargin:'300px'}).observe($('pMapa'));
-$('mAno').innerHTML='<option value="">conforme os filtros</option>'+D.anos_prodes.map(a=>`<option value="${a}">${a}</option>`).join('');
+$('mAno').innerHTML='<option value="">todos os anos</option>'+D.anos_prodes.map(a=>`<option value="${a}">${a}</option>`).join('');
 $('mAno').onchange=e=>{ S.f.ano.clear(); if(e.target.value) S.f.ano.set(e.target.value,1); S.sel.clear(); tudo(); };
 $('segTempo').onclick=e=>{ const b=e.target.closest('[data-t]'); if(!b) return; M.tempo=b.dataset.t; if(M.tempo==='rel') M.k=S.N; repintaMapa(); };
 $('segFundo').onclick=e=>{ const b=e.target.closest('[data-f]'); if(!b) return; M.fundo=b.dataset.f; if(M.mapa){ M.mapa.setStyle(fundoEstilo()); } pintaCtlMapa(); };
@@ -1209,7 +1209,7 @@ function tudo(){
 }
 let rz; addEventListener('resize',()=>{ clearTimeout(rz); rz=setTimeout(()=>{ grafico(window.__ctx); antesDepois(window.__ctx); },150); });
 $('avisoTeste').hidden=!D.teste;
-if(!deURL()) S.f.ano.set('2019',1);
+deURL();   // abre com todos os anos (2016-2024); um ano se escolhe nos filtros ou nos seletores
 montaFiltros(); montaSeguir(); sobre(); tudo();
 
 // ---------------------------------------------------------------- autoconferência (?validar)
