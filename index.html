@@ -1082,7 +1082,7 @@ function animar(alvo){
   ANIM.timer=setInterval(()=>{ if(ANIM[alvo]>=ANIM.lim[alvo].max){ pararAnim(); desenha(); return; } ANIM[alvo]++; desenha(); },1100);
 }
 $('animG').onclick=()=>animar('g'); $('animAD').onclick=()=>animar('ad'); $('animAC').onclick=()=>animar('ac');
-$('pngAC').onclick=()=>png($('acSvg'),`desmatamento_acumulado_${S.vista}.png`);
+$('pngAC').onclick=()=>png($('acSvg'),`desmatamento_acumulado_${S.vista}.png`,'Desmatamento acumulado e o que ele virou',subPNG(false));
 
 // ---------------------------------------------------------------- legendas
 function nosVeg(vi){ const s=new Set(); for(let e=0;e<NE;e++) if(D.st_do[e]>=0) s.add(vi.de[e]); return s; }
@@ -1224,22 +1224,45 @@ $('csvComb').onclick=()=>{
   for(const i of window.__ctx.ids){ const [b,tp]=D.c[i], [an,bi,te]=D.b[b], t=TER[te], r=linhaDe('',[i],null);
     l.push(csvLinha([D.anos_prodes[an],D.biomas[bi],t[0],t[1],nomeAez(t[2]),t[3],TIPO[tp][1],num(D.ca[i]/100),D.anos_mb[S.ano],...RESUMO_COLS.map(([c])=>num(r[c],4))])); }
   baixa('combinacoes_do_recorte.csv','﻿'+l.join('\n'),'text/csv;charset=utf-8'); };
-function png(svg,nome){
+// PNG completo: título, recorte, o gráfico, a legenda (só as cores que aparecem nele) e a fonte.
+// A legenda da página é HTML, fora do SVG; por isso é redesenhada aqui.
+function png(svg,nome,titulo,sub,legenda=true){
   if(!svg){ alert('Não há gráfico para salvar.'); return; }
   const cs=getComputedStyle(document.documentElement), vars={};
   for(const n of ['--tinta','--verde','--suave','--linha','--fundo','--painel','--apagado','--fluxo']) vars[n]=cs.getPropertyValue(n).trim()||'#000';
-  let txt=new XMLSerializer().serializeToString(svg).replace(/var\((--[a-z]+)\)/g,(m,n)=>vars[n]||'#000');
-  const W=+svg.getAttribute('width'), H=+svg.getAttribute('height'), fonte=getComputedStyle(document.body).fontFamily.replace(/"/g,"'");
+  const W0=+svg.getAttribute('width'), H0=+svg.getAttribute('height'), W=Math.max(W0,560), M=16, fonte=getComputedStyle(document.body).fontFamily.replace(/"/g,"'");
+  const linhas=(t,px,y,peso,cls)=>{ const ls=quebra(t,px,W-2*M,peso); return {h:ls.length*(px+5), s:`<text x="${M}" y="${f1(y+px)}" font-size="${px}"${peso?` font-weight="${peso}"`:''}${cls?` class="${cls}"`:''}>${tspans(ls,M,px+5)}</text>`}; };
+  let y=M, cab='';
+  if(titulo){ const r=linhas(titulo,15,y,'600'); cab+=r.s; y+=r.h+2; }
+  if(sub){ const r=linhas(sub,11.5,y,null,'s'); cab+=r.s; y+=r.h; }
+  y+=8; const yG=y; y+=H0+8;
+  // legenda: os nós da leitura cujas cores aparecem no gráfico
+  let leg='';
+  if(legenda){ const usadas=new Set(); svg.querySelectorAll('[fill],[stroke]').forEach(e=>{ for(const a of ['fill','stroke']){ const c=e.getAttribute(a); if(c) usadas.add(c.toLowerCase()); } });
+    const vi=V(), veg=nosVeg(vi), it=vi.nos.map((n,i)=>({nome:n[0],cor:n[1],veg:veg.has(i)})).filter(x=>usadas.has(x.cor.toLowerCase()));
+    for(const [grupo,lista] of [[S.vista==='historia'?'Vegetação nativa segundo o MapBiomas':'Vegetação nativa',it.filter(x=>x.veg)],['Uso',it.filter(x=>!x.veg)]]){
+      if(!lista.length) continue;
+      leg+=`<text x="${M}" y="${f1(y+11)}" font-size="10.5" font-weight="600" class="s">${esc(grupo.toUpperCase())}</text>`; y+=17; let x=M;
+      for(const e of lista){ const w=14+larg(e.nome,11.5)+18; if(x>M&&x+w>W-M){ x=M; y+=18; }
+        leg+=`<rect x="${f1(x)}" y="${f1(y+1)}" width="11" height="11" rx="2" fill="${e.cor}"/><text x="${f1(x+15)}" y="${f1(y+11)}" font-size="11.5">${esc(e.nome)}</text>`; x+=w; }
+      y+=24; } }
+  const fonteTxt=linhas('Fonte: PRODES 2016-2024 (INPE) × MapBiomas 10 m, coleção 4, 2017-2025. Pelo PRODES, toda a área era vegetação nativa até o desmatamento. gierrejunior.github.io/historico-pixel-desmatamento',10,y,null,'s');
+  y+=fonteTxt.h+M; const H=Math.ceil(y);
+  const corpo=new XMLSerializer().serializeToString(svg).replace(/var\((--[a-z]+)\)/g,(m,n)=>vars[n]||'#000').replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'');
   const estilo=`<style>text{fill:${vars['--tinta']};font-family:${fonte}} .s{fill:${vars['--suave']}} .fl{fill-opacity:${vars['--fluxo']}} .apag{fill-opacity:.07}</style>`;
-  txt=`<svg xmlns="http://www.w3.org/2000/svg" width="${W*2}" height="${H*2}" viewBox="0 0 ${W} ${H}">${estilo}<rect width="${W}" height="${H}" fill="${vars['--fundo']}"/>`+txt.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'')+'</svg>';
+  const txt=`<svg xmlns="http://www.w3.org/2000/svg" width="${W*2}" height="${H*2}" viewBox="0 0 ${W} ${H}">${estilo}<rect width="${W}" height="${H}" fill="${vars['--fundo']}"/>`+
+    cab+`<g transform="translate(0,${f1(yG)})">${corpo}</g>`+leg+fonteTxt.s+'</svg>';
   const img=new Image();
   img.onload=()=>{ const c=document.createElement('canvas'); c.width=W*2; c.height=H*2; const x=c.getContext('2d'); x.drawImage(img,0,0,W*2,H*2);
     c.toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=nome; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),4000); },'image/png'); };
   img.onerror=()=>alert('Não consegui gerar o PNG neste navegador. O CSV continua disponível.');
   img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(txt);
 }
-$('pngG').onclick=()=>png($('gSvg'),`historico_${S.graf}_${S.vista}${S.eixos.length?'_por_'+S.eixos[0]:''}.png`);
-$('pngAD').onclick=()=>png($('adSvg'),`historico_antes_e_depois_${S.vista}.png`);
+// o recorte e a leitura, em uma linha, para o PNG
+const subPNG=(lente=true)=>{ const ctx=estadoAtual(); return `${descreve()} · ${fha(ctx.area)}`+(lente? ` · MapBiomas ${rotLente()}` : '')+` · leitura: ${V().nome||S.vista}`; };
+$('pngG').onclick=()=>png($('gSvg'),`historico_${S.graf}_${S.vista}${S.eixos.length?'_por_'+S.eixos[0]:''}.png`,
+  $('gTitulo').textContent, subPNG(S.graf==='treemap'||S.graf==='sunburst'||S.graf==='barras'&&S.eixos.length), !(S.graf==='linhas'&&S.eixos.length));
+$('pngAD').onclick=()=>png($('adSvg'),`historico_antes_e_depois_${S.vista}.png`,'Antes e depois do desmatamento',subPNG(false));
 
 // ---------------------------------------------------------------- link (estado na URL)
 function paraURL(){
