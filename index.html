@@ -82,6 +82,7 @@ button[aria-pressed="true"]{background:var(--verde);color:var(--fundo);border-co
 .acoes{display:flex;gap:6px;flex-wrap:wrap}
 .acoes button{color:var(--suave)}
 .acoes button:hover{color:var(--tinta)}
+.acoes button[aria-pressed="true"]{color:var(--fundo)}
 .aviso{border:1px solid var(--apagado);border-left-width:4px;border-radius:8px;padding:9px 12px;margin-bottom:12px;font-size:12.5px;background:var(--painel)}
 .gnota{font-size:12.5px;line-height:1.5;color:var(--suave);margin:0 0 8px}
 .gnota:empty{display:none}
@@ -594,12 +595,24 @@ function descreve(){
   if(S.seguir) p.push('seguindo o que era '+nomeSeguir());
   return p.join('; ');
 }
+// explica, com os anos do recorte, a diferença entre "mesma idade" (t+N) e "mesma foto" (ano fixo)
+function comoLe(ctx){
+  const cs=coortes(ctx.ids); if(!cs.length) return '';
+  const a0=cs[0], a1=cs[cs.length-1], idade=(Y,a)=>Y===a? 'no próprio ano' : `com ${Y-a} ano${Y-a>1?'s':''}`;
+  if(S.lente==='cal'){ const Y=D.anos_mb[S.ano];
+    return `Os números abaixo são a <b>foto de ${Y}</b>: tudo lido no mesmo mapa do MapBiomas`+
+      (cs.length>1? ` — o desmatamento de ${a0} aparece ${idade(Y,a0)}, o de ${a1} `+(a1<=Y? idade(Y,a1) : `ainda não tinha acontecido em ${Y} (aparece como vegetação nativa)`) : '')+'.'; }
+  const N=S.N, fora=cs.filter(a=>a+N>D.anos_mb[NA-1]||a+N<D.anos_mb[0]), ok=cs.filter(a=>!fora.includes(a));
+  if(!ok.length) return `Nenhum ano de desmatamento do recorte tem o MapBiomas de ${tK(N)} (vai de 2017 a 2025).`;
+  return `Os números abaixo usam a <b>mesma idade, ${tK(N)}</b>: cada ano de desmatamento lido ${N? N+' ano'+(N>1?'s':'')+' depois dele' : 'no seu próprio ano'}`+
+    ` (o de ${ok[0]} no MapBiomas ${ok[0]+N}`+(ok.length>1? `, o de ${ok[ok.length-1]} no de ${ok[ok.length-1]+N}` : '')+`).`+esc(notaFora(fora));
+}
 function frase(ctx){
   // como no explorador anterior: a frase descreve o recorte que está na tela; as respostas ficam nas abas
   if(!ctx.area){ $('frase').innerHTML=`Nada no recorte (${esc(descreve())}).`; return; }
   $('frase').innerHTML=`Mostrando a área <b>${esc(descreve())}</b>: <b>${fha(ctx.area)}</b>`+
     (S.seguir?'':ctx.area<TOTAL_BR*0.9995?` (${fp(ctx.area/TOTAL_BR*100)} do desmatamento PRODES 2016-2024)`:' (todo o desmatamento PRODES 2016-2024)')+
-    `. Os números abaixo usam o MapBiomas ${rotLente()}.`;
+    '. '+comoLe(ctx);
 }
 
 // ---------------------------------------------------------------- cartões
@@ -996,7 +1009,8 @@ function matriz(ctx){
   $('matSub').innerHTML= (cal?
     `Cada linha é um ano de desmatamento do PRODES; as colunas são os anos do MapBiomas, então o tempo passa da esquerda para a direita e cada desmatamento entra na sua vez (a escada). A coluna "PRODES" é o ponto de partida: pelo PRODES, 100% vegetação nativa até o desmatamento. A barra escura à esquerda de uma célula marca o ano do desmatamento (t); antes dele, em verde-claro, a área ainda não tinha sido desmatada${S.antes?' — com "mostrar os anos antes", essas células mostram o que o MapBiomas já via (mais apagadas)':''}.`
     : `Cada linha é um ano de desmatamento do PRODES; as colunas contam os anos a partir dele: "t" é o MapBiomas do mesmo ano do desmatamento (o ano PRODES), "t+1" o do ano seguinte${S.antes?', "t−1" o do ano anterior':''}. A coluna "PRODES" é o ponto de partida: pelo PRODES, 100% vegetação nativa até o desmatamento. A escada vem do MapBiomas 10 m ir só de 2017 a 2025: o desmatamento de 2016 começa em t+1 e o de 2024 termina em t+1.`)+
-    ` O número é o % da área em <b>${esc(minusc(op[1]))}</b>; passe o mouse para ver o ano do mapa. O tracejado marca o ano escolhido em "uso da terra no MapBiomas".`;
+    ` O número é o % da área em <b>${esc(minusc(op[1]))}</b>; passe o mouse para ver o ano do mapa. O tracejado marca o ano escolhido em "uso da terra no MapBiomas".`+
+    (op[0]==='nunca'? ` <b>Por que a linha quase não muda:</b> "não confirma o desmatamento" é uma propriedade da trajetória inteira (vegetação nativa em todos os anos até 2025), então vale igual em todas as colunas; serve para comparar os anos de desmatamento entre si (as linhas). As pequenas diferenças vêm de pixels que num ano aparecem como água, afloramento ou sem classe em vez de vegetação.` : '');
 }
 
 // ---------------------------------------------------------------- PRODES × MapBiomas
@@ -1276,8 +1290,8 @@ $('segCol').onclick=e=>{ const b=e.target.closest('[data-c]'); if(b){ S.col=b.da
 $('segVal').onclick=e=>{ const b=e.target.closest('[data-val]'); if(b){ S.val=b.dataset.val; tudo(); } };
 $('segMatCol').onclick=e=>{ const b=e.target.closest('[data-mc]'); if(b){ S.matCol=b.dataset.mc; tudo(); } };
 document.querySelectorAll('.btnAntes').forEach(b=>b.onclick=()=>{ S.antes=!S.antes; if(!S.antes&&M.k<0) M.k=0; tudo(); });
-$('selLente').innerHTML='<optgroup label="contado a partir do desmatamento (t = ano PRODES)">'+[0,1,2,3,4,5,6,7,8].map(n=>`<option value="n${n}">${n===0?'t — mesmo ano do desmatamento':`t+${n} — ${n} ano${n>1?'s':''} depois do desmatamento`}${n===1?' (padrão)':''}</option>`).join('')+
-  '</optgroup><optgroup label="ano fixo do MapBiomas (todos no mesmo mapa)">'+D.anos_mb.map((a,j)=>`<option value="c${j}">${a}</option>`).join('')+'</optgroup>';
+$('selLente').innerHTML='<optgroup label="Mesma idade: cada desmatamento lido N anos depois dele (t = ano PRODES)">'+[0,1,2,3,4,5,6,7,8].map(n=>`<option value="n${n}">${n===0?'t — no próprio ano de cada desmatamento':`t+${n} — ${n} ano${n>1?'s':''} depois de cada desmatamento`}${n===1?' (padrão)':''}</option>`).join('')+
+  '</optgroup><optgroup label="Mesma foto: todos lidos no mesmo ano do MapBiomas">'+D.anos_mb.map((a,j)=>`<option value="c${j}">foto de ${a}</option>`).join('')+'</optgroup>';
 $('selLente').onchange=e=>{ const v=e.target.value; if(v[0]==='n'){ S.lente='n'; S.N=+v.slice(1); } else { S.lente='cal'; S.ano=+v.slice(1); } tudo(); };
 $('anoRapido').innerHTML='<option value="">todos (vários anos)</option>'+D.anos_prodes.map(a=>`<option value="${a}">${a}</option>`).join('');
 $('anoRapido').onchange=e=>{ S.f.ano.clear(); if(e.target.value) S.f.ano.set(e.target.value,1); S.sel.clear(); tudo(); };
@@ -1321,7 +1335,7 @@ const INFO={
   mapa:['Cada pixel do mapa (de ~75 m no zoom máximo a alguns km de longe) mostra um ponto de 10 m desmatado dentro dele. <b>Desmatamento acumulado</b>: em cada ano, tudo o que o PRODES apontou como desmatado até ali, pintado pelo que o MapBiomas mostra naquele ano — a mancha cresce. <b>Só o desmatamento de cada ano</b>: a cada passo, apenas o PRODES daquele ano (onde se desmatou), pintado pelo que ele virou no MapBiomas escolhido acima dos números (padrão: t+1, o ano seguinte). <b>Anos depois do desmatamento</b>: cada área no seu ano relativo ao desmatamento (t+1 = o MapBiomas do ano seguinte ao desmatamento dela); como cada ano de desmatamento tem um número diferente de anos depois, a mancha encolhe à medida que os mais recentes saem. <b>Cor pelo ano do desmatamento</b>: onde se desmatou em cada ano. Os filtros de ano e de tipo da esquerda valem para o mapa; os de UF, bioma e AEZ não (use o zoom).','Mapa'],
   perg:['Respostas diretas para o recorte filtrado. "Quando o MapBiomas vê a supressão" conta o ano do primeiro uso a partir do ano PRODES; "voltou a ser vegetação" exige 2 anos seguidos de vegetação nativa depois de uso.','Perguntas e respostas'],
   mat:['Cada linha é um ano de desmatamento do PRODES. <b>Anos do MapBiomas</b> (padrão): as colunas são o calendário, 2017 a 2025, e cada desmatamento entra no seu ano — a escada mostra o tempo passando; a barra escura marca o ano do desmatamento. <b>Anos depois do desmatamento</b>: todos alinhados pelo ano PRODES (t, t+1, t+2...), para comparar anos de desmatamento no mesmo ponto da história. Uma linha que cai de ~80% para ~20% entre t−1 e t+1 é a defasagem entre PRODES e MapBiomas; o que sobra a partir de t+2 é, na maior parte, área em que o MapBiomas não confirma o desmatamento ou que voltou a ser vegetação.','Matriz'],
-  lente:['Qual mapa do MapBiomas os números usam. <b>t</b> é o ano PRODES do desmatamento (agosto do ano anterior a julho). <b>t+1</b> é o MapBiomas do ano seguinte, <b>t+2</b> o de dois anos depois, e assim por diante: cada ano de desmatamento é lido no seu próprio ano (o de 2019 em t+2 é o MapBiomas 2021; o de 2022, o de 2024). Esse intervalo é a <b>defasagem</b> (lag): o MapBiomas leva 1 a 2 anos para registrar o desmatamento do PRODES, por isso o padrão é t+1. <b>Ano fixo</b>: todos os anos de desmatamento lidos no mesmo mapa do MapBiomas (os desmatados depois dele aparecem ainda como vegetação).','Uso da terra no MapBiomas'],
+  lente:['Qual mapa do MapBiomas os números usam. Duas formas:<br><b>Mesma idade (t+N)</b> — cada ano de desmatamento é lido N anos depois dele. Em t+1: o de 2016 no MapBiomas 2017, o de 2020 no de 2021, o de 2024 no de 2025. Todos têm a mesma idade, então dá para somar e comparar: responde "o que o desmatamento vira 1 ano depois?". t é o ano PRODES (agosto a julho); o padrão é t+1 porque o MapBiomas leva 1 a 2 anos para registrar o desmatamento (a defasagem).<br><b>Mesma foto (um ano só)</b> — tudo lido no mesmo mapa. Na foto de 2025: o desmatamento de 2016 com 9 anos, o de 2024 com 1. Responde "o que é hoje a área desmatada?". Numa foto antes de 2024, o que foi desmatado depois dela ainda aparece como vegetação nativa (ainda não tinha acontecido).','Uso da terra no MapBiomas'],
 };
 for(const [k,[t,tt]] of Object.entries(INFO)){ const el=$('i_'+k); if(el) el.appendChild(info(t,tt)); }
 function aplicaTema(t){ const fixo=t==='light'||t==='dark'; if(fixo) document.documentElement.setAttribute('data-theme',t); else document.documentElement.removeAttribute('data-theme');
