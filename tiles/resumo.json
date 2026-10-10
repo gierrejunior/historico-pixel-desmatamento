@@ -2,18 +2,18 @@
  "zmin": 4,
  "zmax": 11,
  "mb_por_zoom": {
-  "4": 0.1,
+  "4": 0.2,
   "5": 0.4,
-  "6": 1.1,
-  "7": 2.6,
-  "8": 6.1,
-  "9": 13.8,
-  "10": 31.9,
-  "11": 74.8
+  "6": 1.2,
+  "7": 3.0,
+  "8": 6.6,
+  "9": 14.6,
+  "10": 32.9,
+  "11": 76.4
  },
- "mb_total": 130.8,
- "minutos": 40.9,
- "formato": "uint16 K; K×11 bytes (ano PRODES−2015, tipo, estado 2017..2025); 65536×uint16 índice; gzip",
+ "mb_total": 135.2,
+ "minutos": 29.2,
+ "formato": "uint16 K; K×13 bytes (ano PRODES−2015, tipo, estado 2017..2025, bioma PRODES, território); 65536×uint16 índice; gzip",
  "anos_mb": [
   2017,
   2018,
