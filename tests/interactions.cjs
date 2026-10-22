@@ -27,7 +27,7 @@ test('Autoconferência aprovada',async()=>{
 
 test('O que virou: mesma idade, por ano do desmatamento e 1, 3 e 5 anos depois',async()=>{
  const p=await page('');
- assert.match(await p.locator('#rVirou').innerText(),/1 ano depois do desmatamento .* nos desmatamentos de 2016 a 2020/s);
+ assert.match(await p.locator('#rVirou').innerText(),/1 ano depois do desmatamento .* ainda era vegetação no MapBiomas. Com o tempo, nos desmatamentos de 2016 a 2020/s);
  assert.match(await p.locator('#porAnoTit').innerText(),/virou 1 ano depois/);
  assert.ok(await p.locator('#paSvg rect').count()>9);
  assert.match(await p.locator('#idadesTit').innerText(),/1, 3 e 5 anos depois/);
@@ -51,4 +51,29 @@ test('Link antigo com o nome anterior do tipo continua filtrando',async()=>{
  const p=await page('?f_tipo=%2BVoltou%20a%20ser%20vegeta%C3%A7%C3%A3o');
  assert.match(await p.locator('#fichas').innerText(),/Voltou a aparecer como vegetação/);
  await p.close();
+});
+
+test('Simplificado ao abrir; Detalhado pelo botão e pelos links antigos',async()=>{
+ const p=await page('');
+ assert.equal(await p.evaluate(()=>document.body.dataset.modo),'simples');
+ assert.equal(await p.locator('#abas [data-aba="diverge"]').isVisible(),false);
+ assert.equal(await p.locator('.gavBtn[data-gav="aez"]').isVisible(),false);
+ assert.match(await p.locator('#legPorAno').textContent(),/Ainda vegetação no MapBiomas/);
+ await p.locator('button[data-modo="det"]').click();
+ assert.equal(await p.locator('#abas [data-aba="diverge"]').isVisible(),true);
+ assert.equal(await p.locator('.gavBtn[data-gav="aez"]').isVisible(),true);
+ assert.match(await p.locator('#legPorAno').textContent(),/MapBiomas atrasado/);
+ assert.ok(await p.evaluate(()=>paraURL().includes('modo=det')));
+ await p.close();
+ const v=await page('?aba=diverge&f_bioma=%2BCerrado');   // link de antes do Simplificado
+ assert.equal(await v.evaluate(()=>document.body.dataset.modo),'det');
+ assert.equal(await v.locator('.aba[data-aba="diverge"]').isVisible(),true);
+ await v.close();
+ const s=await page('?modo=simples&aba=diverge');           // aba do Detalhado num link do Simplificado: volta para O que virou
+ assert.equal(await s.locator('.aba[data-aba="virou"]').isVisible(),true);
+ await s.close();
+});
+
+test('Detalhado no celular sem rolagem lateral',async()=>{
+ const p=await page('?modo=det',{width:390,height:844});assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await p.close();
 });

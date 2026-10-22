@@ -249,14 +249,40 @@ details.gaveta[open]>summary{margin-bottom:10px}
 .kpi .kPrincipal b{font-size:27px}
 .kpi .kPrincipal .krotulo{font-size:10.5px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--verde);margin:0 0 4px}
 @media(max-width:600px){.recorteTopo .cx{flex:1 1 100%}.recorteTopo #selLente{flex:1 1 100%;min-width:0}.gavBtn{white-space:normal}}
+/* modo de análise e tema, como no explorador PRODES */
+.ajustesTopo{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:8px 22px;margin-left:auto}
+.ajustesTopo .tema{width:auto}
+.aparencia{position:relative;flex:none}
+.aparencia>summary{display:flex;align-items:center;justify-content:center;width:30px;height:30px;list-style:none;cursor:pointer;border:0;border-radius:6px;background:transparent;color:var(--suave)}
+.aparencia>summary::-webkit-details-marker{display:none}
+.aparencia>summary:hover,.aparencia[open]>summary{color:var(--verde);background:color-mix(in srgb,var(--verde) 7%,var(--fundo))}
+.aparencia>summary>svg{width:18px;height:18px}
+.menuTema{position:absolute;right:0;top:calc(100% + 6px);z-index:20;display:flex;flex-direction:column;width:148px;padding:4px;border:1px solid var(--linha);border-radius:8px;background:var(--fundo);box-shadow:var(--sombra)}
+.menuTema button{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;min-height:32px;padding:5px 8px;border:0;border-radius:4px;background:transparent;text-align:left;font-size:12px}
+.menuTema button[aria-pressed="true"]{color:var(--verde);background:color-mix(in srgb,var(--verde) 7%,var(--fundo));box-shadow:none}
+.menuTema button:not([aria-pressed="true"]) .marcaTema{visibility:hidden}
+@media(max-width:700px){.ajustesTopo{justify-content:flex-start;margin-left:0;width:100%}.ajustesTopo>.tema{flex:1;flex-wrap:wrap}.ajustesTopo>.tema>.gtit{display:none}}
+/* Simplificado: só os filtros, abas e controles principais */
+body[data-modo="simples"] #abas [data-aba="diverge"],body[data-modo="simples"] #abas [data-aba="tabela"],body[data-modo="simples"] #abas [data-aba="trajetorias"],
+body[data-modo="simples"] .gavBtn[data-gav="ufbioma"],body[data-modo="simples"] .gavBtn[data-gav="aez"],body[data-modo="simples"] .gavBtn[data-gav="aezufbioma"],
+body[data-modo="simples"] .gavBtn[data-gav="dv"],body[data-modo="simples"] .gavBtn[data-gav="seguir"],
+body[data-modo="simples"] #gav_ufbioma,body[data-modo="simples"] #gav_aez,body[data-modo="simples"] #gav_aezufbioma,body[data-modo="simples"] #gav_dv,body[data-modo="simples"] #dSeguir,
+body[data-modo="simples"] .pgrupo:has(#segVista),body[data-modo="simples"] .btnAntes,body[data-modo="simples"] #gMat,
+body[data-modo="simples"] #segTempo [data-t="diverge"],body[data-modo="simples"] #segDivDet{display:none!important}
 </style></head><body><div class="wrap">
 <div class="topo">
  <h1>FGV Agro - O que o desmatamento virou</h1>
- <div class="tema"><span class="gtit" style="margin:0">Tema</span>
-  <span class="seg mini" role="group" aria-label="Tema da página">
-   <button type="button" data-tema="auto" title="segue o modo claro ou escuro do seu computador ou celular">Automático</button>
-   <button type="button" data-tema="light">Claro</button>
-   <button type="button" data-tema="dark">Escuro</button></span></div>
+ <div class="ajustesTopo"><div class="tema"><span class="gtit">Modo de análise</span>
+  <span class="seg mini" role="group" aria-label="Modo de análise">
+   <button type="button" data-modo="simples" title="usos agrupados, o que o MapBiomas ainda mostra como vegetação em duas classes e os filtros principais; os filtros aplicados são preservados ao trocar">Simplificado</button>
+   <button type="button" data-modo="det" title="todas as classes (MapBiomas atrasado, não confirma, folga de datas…), todos os filtros e as abas PRODES × MapBiomas, Cruzamentos e Trajetórias; os filtros aplicados são preservados ao trocar">Detalhado</button>
+  </span></div>
+ <details class="aparencia"><summary aria-label="Alterar tema da página" title="Alterar tema"><span aria-hidden="true">◐</span></summary>
+  <div class="menuTema" role="group" aria-label="Tema da página">
+   <button type="button" data-tema="auto" title="segue o modo claro ou escuro do seu computador ou celular">Automático <span class="marcaTema" aria-hidden="true">✓</span></button>
+   <button type="button" data-tema="light">Claro <span class="marcaTema" aria-hidden="true">✓</span></button>
+   <button type="button" data-tema="dark">Escuro <span class="marcaTema" aria-hidden="true">✓</span></button>
+  </div></details></div>
 </div>
 <div class="recorteTopo">
  <div class="cx"><h3>1. Desmatamento PRODES<span id="i_ano"></span></h3><span class="seg mini anosTopo" id="anosTopo" role="group" aria-label="Anos do desmatamento PRODES"></span></div>
@@ -420,6 +446,11 @@ const NA=D.anos_mb.length, NP=NA-1, NE=25, NE2=NE*NE, EP=23, AD=24, NC=D.c.lengt
 // desmatamento sem parecer uma classe do MapBiomas.
 const NOME_EP='Área ainda não desmatada pelo PRODES', COR_EP='#1f8d49';
 const NOME_AD='MapBiomas adiantado: já mostra o desmatamento (calendário)', COR_AD='#9fd8cf';
+// Leitura do Simplificado: os usos agrupados; do que o MapBiomas ainda mostra como vegetação, duas classes —
+// "Ainda vegetação no MapBiomas" (atrasado, não confirma, folga de datas) e "Voltou a aparecer como vegetação".
+// Os estados (0-22) são os do regras.py: 1-12 vegetação nativa por tipo, 13-19 usos e outros, 20-22 folga.
+D.vistas.simples={nome:'Simplificado', nos:[['Ainda vegetação no MapBiomas','#8aa892'],['Voltou a aparecer como vegetação','#4cc27a'],['Pastagem','#edde8e'],['Agricultura','#c27ba0'],['Silvicultura','#7a5900'],['Mosaico de usos agro','#ffefc3'],['Outros','#8a9396']],
+  de:[6, 0,0,1,1, 0,0,1,1, 0,0,1,1, 2,3,3,4,5,6,6, 0,0,0]};
 for(const v of Object.values(D.vistas)){ v.nos.push([NOME_EP,COR_EP]); v.de.push(v.nos.length-1); v.nos.push([NOME_AD,COR_AD]); v.de.push(v.nos.length-1); }
 // "Voltou a aparecer como vegetação" (operacional, 22/10/2026): é o que o MapBiomas mostra depois de um uso —
 // pode ser regeneração ou oscilação do mapa. Troca o nome que vem dos dados; links antigos continuam valendo.
@@ -504,7 +535,7 @@ function areaTerritorio(d,k,def){
 }
 
 // ---------------------------------------------------------------- estado da tela
-const S={f:{}, def:'prodes', vista:'historia', val:'ha', ano:NA-1, lente:'n', N:1, mNo:'nat', matCol:'cal', antes:false, aba:'virou', eixos:[], graf:'sankey', col:'lag', linhaNo:null,
+const S={f:{}, modo:'simples', vistaDet:'historia', def:'prodes', vista:'historia', val:'ha', ano:NA-1, lente:'n', N:1, mNo:'nat', matCol:'cal', antes:false, aba:'virou', eixos:[], graf:'sankey', col:'lag', linhaNo:null,
          seguir:null, sel:new Set(), ord:['area',-1], tjN:25, busca:{}, mesmos:false};
 for(const [d] of DIMS) S.f[d]=new Map();
 const V=()=>D.vistas[S.vista];
@@ -573,8 +604,9 @@ function compKResumo(ids,k){ const r=compK(ids,k); return {k,t:soma(r.vE),lag:so
 const IDADE_MAX=5;
 function mesmaIdade(cs){ if(!cs.length) return null; const fim=D.anos_mb[NA-1], H=Math.min(IDADE_MAX,fim-cs[0]); return {H, cs:cs.filter(a=>a+H<=fim)}; }
 const faixaAnos=cs=>cs.length>1? `${cs[0]} a ${cs[cs.length-1]}` : String(cs[0]);
-// o que o MapBiomas ainda mostra como vegetação na área desmatada (atrasado, folga, não confirma, voltou)
-const VEG_MB=[...E_ANTES,...E_FOLGA,...E_NUNCA,...E_EMREG,...E_REG];
+// "Ainda vegetação no MapBiomas" (a classe do Simplificado): atrasado, folga de datas e não confirma; o que voltou
+// a aparecer como vegetação depois de um uso é outra classe
+const VEG_MB=[...E_ANTES,...E_FOLGA,...E_NUNCA], VOLTOU=[...E_EMREG,...E_REG];
 // minúscula no meio da frase, sem estragar nome próprio (MapBiomas, PRODES)
 const minusc=n=>/^(MapBiomas|PRODES)/.test(n)? n : n.charAt(0).toLowerCase()+n.slice(1);
 // Tempo em anos (pedido do Gierre, 10/10/2026: "estamos trabalhando com ano"). Com um ano de desmatamento só, o
@@ -1102,18 +1134,19 @@ function perguntas(ctx){
       barras)); }
   // 4. o que virou
   const {vE,fora}=compLente(ids), t=soma(vE);
-  if(t){ const pc=es=>somaEst(vE,es); const it=[['Pastagem',pc(E_PASTO),HIST[4][1]],['Agricultura',pc(E_AGRI),HIST[5][1]],['Mosaico de usos',pc(E_MOS),HIST[8][1]],['Silvicultura',pc(E_SILV),HIST[7][1]],['Outros',pc(E_OUT),HIST[9][1]],
+  if(t){ const pc=es=>somaEst(vE,es), SN=D.vistas.simples.nos; const it= S.vista==='simples'? [['Pastagem',pc(E_PASTO),SN[2][1]],['Agricultura',pc(E_AGRI),SN[3][1]],['Mosaico de usos',pc(E_MOS),SN[5][1]],['Silvicultura',pc(E_SILV),SN[4][1]],['Outros',pc(E_OUT),SN[6][1]],
+      [SN[0][0],pc([...E_NUNCA,...E_ANTES,...E_FOLGA]),SN[0][1]],[SN[1][0],pc([...E_EMREG,...E_REG]),SN[1][1]],['MapBiomas adiantado (calendário)',pc([AD]),COR_AD],[NOME_EP,pc([EP]),COR_EP]] : [['Pastagem',pc(E_PASTO),HIST[4][1]],['Agricultura',pc(E_AGRI),HIST[5][1]],['Mosaico de usos',pc(E_MOS),HIST[8][1]],['Silvicultura',pc(E_SILV),HIST[7][1]],['Outros',pc(E_OUT),HIST[9][1]],
       ['MapBiomas não confirma o desmatamento',pc(E_NUNCA),HIST[1][1]],['Voltou a aparecer como vegetação',pc([...E_EMREG,...E_REG]),HIST[3][1]],['MapBiomas atrasado (ainda vê vegetação)',pc(E_ANTES),HIST[0][1]],['Folga de datas (uso no ano seguinte)',pc(E_FOLGA),'#c9e7e1'],['MapBiomas adiantado (calendário)',pc([AD]),COR_AD],[NOME_EP,pc([EP]),COR_EP]];
     OUT.virou.push(q(`O que virou, ${rotLente()}?`,[...it].sort((a,c)=>c[1]-a[1]).slice(0,4).map(([n,v])=>`<b>${fp(v/t*100)}</b> ${esc(minusc(n))}`).join(', ')+'.'+esc(notaFora(fora)),pilha_(it))); }
   // 4b. permanência (operacional, 22/10/2026): do uso 1 ano depois ao uso H anos depois, nos mesmos anos de
   // desmatamento, pelas trajetórias embutidas
   { const m=mesmaIdade(coortes(ids));
-    if(m&&m.H>=2){ const G=e=>E_PASTO.includes(e)?'pasto':E_AGRI.includes(e)?'agri':E_MOS.includes(e)?'mos':E_SILV.includes(e)?'silv':VEG_MB.includes(e)?'veg':'out', M={};
+    if(m&&m.H>=2){ const G=e=>E_PASTO.includes(e)?'pasto':E_AGRI.includes(e)?'agri':E_MOS.includes(e)?'mos':E_SILV.includes(e)?'silv':VEG_MB.includes(e)||VOLTOU.includes(e)?'veg':'out', M={};
       for(const i of ids){ const A=coorteDe(i); if(!m.cs.includes(A)) continue; const j1=A+1-D.anos_mb[0], j2=A+m.H-D.anos_mb[0], x=D.tj[i];
         for(let k=0;k<x.length;k+=2){ const s_=x[k]; if(!casa(s_)) continue; const a=G(s_.charCodeAt(j1)-97), b=G(s_.charCodeAt(j2)-97); (M[a]??={})[b]=(M[a][b]||0)+x[k+1]; } }
       const tg=g=>soma(Object.values(M[g]||{})), pp=(a,b)=>fp(((M[a]||{})[b]||0)/tg(a)*100), USOS=['pasto','agri','mos','silv'];
       const tU=USOS.reduce((s_,g)=>s_+tg(g),0), mesmo=USOS.reduce((s_,g)=>s_+((M[g]||{})[g]||0),0);
-      if(tU){ const nomes={pasto:['Pastagem',HIST[4][1]],agri:['Agricultura',HIST[5][1]],mos:['Mosaico de usos',HIST[8][1]],silv:['Silvicultura',HIST[7][1]],veg:['Vegetação no MapBiomas',HIST[3][1]],out:['Outros',HIST[9][1]]};
+      if(tU){ const nomes={pasto:['Pastagem',HIST[4][1]],agri:['Agricultura',HIST[5][1]],mos:['Mosaico de usos',HIST[8][1]],silv:['Silvicultura',HIST[7][1]],veg:['Voltou a aparecer como vegetação',HIST[3][1]],out:['Outros',HIST[9][1]]};
         OUT.virou.push(q(`Ficou no mesmo uso? (1 e ${m.H} anos depois)`,`${m.cs.length>1?'Desmatamentos':'Desmatamento'} de ${faixaAnos(m.cs)}: da área com uso 1 ano depois do desmatamento, <b>${fp(mesmo/tU*100)}</b> estava no mesmo uso ${m.H} anos depois.`+
           (tg('pasto')? ` Da que era <b>pastagem</b>, <b>${pp('pasto','pasto')}</b> seguia pastagem, <b>${pp('pasto','agri')}</b> virou agricultura e <b>${pp('pasto','veg')}</b> voltou a aparecer como vegetação.` : '')+
           (tg('agri')? ` Da que era <b>agricultura</b>, <b>${pp('agri','agri')}</b> seguia agricultura.` : ''),
@@ -1132,9 +1165,9 @@ function perguntas(ctx){
   // anos de desmatamento — e não o calendário de 2025, que junta desmatamento de 1 e de 9 anos.
   const k1=compK(ids,1), t1=soma(k1.vE), c1=es=>fp(somaEst(k1.vE,es)/t1*100), mI=mesmaIdade(coortes(ids)); let evol='';
   if(mI&&mI.H>=2){ const is=ids.filter(i=>mI.cs.includes(coorteDe(i))), va=compK(is,1).vE, vb=compK(is,mI.H).vE, ta=soma(va), tb=soma(vb), pa=es=>fp(somaEst(va,es)/ta*100), pb=es=>fp(somaEst(vb,es)/tb*100);
-    evol=` Com o tempo, ${mI.cs.length>1? `nos desmatamentos de ${faixaAnos(mI.cs)} (os que já têm ${mI.H} anos de MapBiomas)` : `no desmatamento de ${mI.cs[0]}`}: a pastagem vai de <b>${pa(E_PASTO)}</b> 1 ano depois para <b>${pb(E_PASTO)}</b> ${mI.H} anos depois, a agricultura de <b>${pa(E_AGRI)}</b> para <b>${pb(E_AGRI)}</b>, e o que o MapBiomas ainda mostra como vegetação, de <b>${pa(VEG_MB)}</b> para <b>${pb(VEG_MB)}</b>.`; }
+    evol=` Com o tempo, ${mI.cs.length>1? `nos desmatamentos de ${faixaAnos(mI.cs)} (os que já têm ${mI.H} anos de MapBiomas)` : `no desmatamento de ${mI.cs[0]}`}: a pastagem vai de <b>${pa(E_PASTO)}</b> 1 ano depois para <b>${pb(E_PASTO)}</b> ${mI.H} anos depois, a agricultura de <b>${pa(E_AGRI)}</b> para <b>${pb(E_AGRI)}</b>, a área ainda vegetação no MapBiomas de <b>${pa(VEG_MB)}</b> para <b>${pb(VEG_MB)}</b> e a que voltou a aparecer como vegetação, de <b>${pa(VOLTOU)}</b> para <b>${pb(VOLTOU)}</b>.`; }
   $('rVirou').innerHTML= S.seguir? `Seguindo ${esc(nomeSeguir())}: veja os gráficos abaixo.` : !t1? 'Nenhum ano de desmatamento do recorte tem o MapBiomas de 1 ano depois.' :
-    `Do que o PRODES apontou como desmatado (<b>${fha(tot2)}</b>), <b>1 ano depois</b> do desmatamento <b>${c1(E_PASTO)}</b> era pastagem, <b>${c1(E_AGRI)}</b> agricultura, <b>${c1(E_MOS)}</b> mosaico de usos e <b>${c1(E_SILV)}</b> silvicultura; em <b>${c1(VEG_MB)}</b> o MapBiomas ainda mostra vegetação.`+evol;
+    `Do que o PRODES apontou como desmatado (<b>${fha(tot2)}</b>), <b>1 ano depois</b> do desmatamento <b>${c1(E_PASTO)}</b> era pastagem, <b>${c1(E_AGRI)}</b> agricultura, <b>${c1(E_MOS)}</b> mosaico de usos e <b>${c1(E_SILV)}</b> silvicultura; <b>${c1(VEG_MB)}</b> ainda era vegetação no MapBiomas.`+evol;
   $('rDiverge').innerHTML=`O PRODES é a referência: até o ano do desmatamento, a área era vegetação nativa. O MapBiomas <b>concorda</b> em <b>${pDV(0)}</b> da área desmatada (<b>${fha(tot2)}</b>). `+
     `Pelo calendário (o ano PRODES vai de agosto a julho), ele deveria mostrar o desmatamento no ano anterior ou no próprio ano; com a folga de 1 ano para a imprecisão das datas, até o ano seguinte. <b>Diverge depois</b> em <b>${pDV(2)}</b> — está atrasado: só mostra o uso 2+ anos depois, ou nunca (em <b>${fp(semUso/tot2*100)}</b> ele não confirma o desmatamento em nenhum ano até 2025). `+
     `<b>Diverge antes</b> em <b>${pDV(1)}</b> — via uso 2 anos ou mais antes do PRODES (desmatamentos de 2019 em diante: <b>${fp(divAntes(ids).pct)}</b>). A tabela mostra onde isso pesa mais; o filtro "PRODES × MapBiomas" aplica cada grupo à página e ao mapa.`;
@@ -1303,7 +1336,7 @@ function legendaHTML(vals,titulo){
   return (titulo?`<div class="gt" style="text-transform:none;letter-spacing:0;font-size:12.5px;color:var(--tinta)">${titulo}</div>`:'')+
     (temEP? `<div class="gt">Pelo PRODES</div>`+item(epN) : '')+
     (calV.length? `<div class="gt">Calendário e datas ${btInfo('porque','por que PRODES e MapBiomas não batem')}</div>`+calV.map(item).join('') : '')+
-    grupo(S.vista==='historia'?'Vegetação nativa segundo o MapBiomas':'Vegetação nativa',idx.filter(i=>veg.has(i)))+grupo('Uso',idx.filter(i=>!veg.has(i)));
+    grupo(S.vista==='historia'||S.vista==='simples'?'Vegetação nativa segundo o MapBiomas':'Vegetação nativa',idx.filter(i=>veg.has(i)))+grupo('Uso',idx.filter(i=>!veg.has(i)));
 }
 
 // Pilhas (operacional, 22/10/2026: não misturar divergência com uso): o uso embaixo; em cima, o que o
@@ -1559,7 +1592,7 @@ function paraURL(){
   const p=new URLSearchParams();
   for(const [d] of DIMS){ const m=S.f[d]; if(m.size) p.set('f_'+d,[...m].map(([k,s])=>(s===2?'-':'+')+k).join('|')); }
   if(!DIMS.some(([d])=>S.f[d].size)) p.set('f','0');
-  p.set('def',S.def); p.set('v',S.vista); p.set('g',S.graf); p.set('ano',D.anos_mb[S.ano]); p.set('l',S.lente); p.set('n',S.N); p.set('m',S.mNo);
+  p.set('modo',S.modo); p.set('def',S.def); p.set('v',S.vista); p.set('g',S.graf); p.set('ano',D.anos_mb[S.ano]); p.set('l',S.lente); p.set('n',S.N); p.set('m',S.mNo);
   if(S.val!=='ha') p.set('val',S.val); p.set('col',S.col); if(S.eixos.length) p.set('e',S.eixos.join(','));
   if(S.linhaNo!=null) p.set('ln',S.linhaNo); if(S.seguir) p.set('s',`${S.seguir.vista}:${S.seguir.j}:${S.seguir.no}`);
   if(S.ord[0]!=='area'||S.ord[1]!==-1) p.set('o',S.ord.join(':')); if(S.antes) p.set('antes','1'); if(S.matCol!=='cal') p.set('mc',S.matCol); if(S.aba!=='virou') p.set('aba',S.aba); if(S.mesmos) p.set('mi','1');
@@ -1567,6 +1600,8 @@ function paraURL(){
 }
 function deURL(){
   const p=new URLSearchParams(location.search); if(![...p.keys()].some(k=>k!=='validar')) return false;
+  // link sem 'modo' (os de antes do Simplificado) abre no Detalhado, como era; só 'modo=simples' abre o Simplificado
+  S.modo=p.get('modo')==='simples'? 'simples' : 'det';
   for(const [d] of DIMS){ const v=p.get('f_'+d); if(!v) continue; for(const x of v.split('|')) if(x.length>1) S.f[d].set(CAUTELA(x.slice(1)),x[0]==='-'?2:1); }
   if(['prodes','mun'].includes(p.get('def'))) S.def=p.get('def');
   if(D.vistas[p.get('v')]) S.vista=p.get('v');
@@ -1666,10 +1701,22 @@ const INFO={
   lente:['Qual mapa do MapBiomas os números usam. Duas formas:<br><b>Mesma idade</b> — cada ano de desmatamento é lido N anos depois dele. 1 ano depois: o de 2016 no MapBiomas 2017, o de 2020 no de 2021, o de 2024 no de 2025. Todos têm a mesma idade, então dá para somar e comparar: responde "o que o desmatamento vira 1 ano depois?". Com um ano de desmatamento só, a lista mostra os próprios anos (2020 → 2021, 2022...) e vai só até 2025. O ano PRODES vai de agosto a julho; o padrão é 1 ano depois porque o MapBiomas leva 1 a 2 anos para registrar o desmatamento (a defasagem).<br><b>Mesma foto (um ano só)</b> — tudo lido no mesmo mapa. Na foto de 2025: o desmatamento de 2016 com 9 anos, o de 2024 com 1. Responde "o que é hoje a área desmatada?". Numa foto antes de 2024, o que foi desmatado depois dela entra como "vegetação nativa antes do desmatamento (PRODES)": ainda não tinha acontecido.','Uso da terra no MapBiomas'],
 };
 for(const [k,[t,tt]] of Object.entries(INFO)){ const el=$('i_'+k); if(el) el.appendChild(info(t,tt)); }
+const ICONES_TEMA={
+  auto:'<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
+  light:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/>',
+  dark:'<path d="M20.8 13A9 9 0 0 1 11 3.2 9 9 0 1 0 20.8 13Z"/>'
+};
 function aplicaTema(t){ const fixo=t==='light'||t==='dark'; if(fixo) document.documentElement.setAttribute('data-theme',t); else document.documentElement.removeAttribute('data-theme');
-  document.querySelectorAll('[data-tema]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tema===(fixo?t:'auto'))); }
+  document.querySelectorAll('[data-tema]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tema===(fixo?t:'auto')));
+  const tema=fixo?t:'auto', nome={auto:'Automático',light:'Claro',dark:'Escuro'}[tema], resumo=document.querySelector('.aparencia>summary');
+  resumo.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'+ICONES_TEMA[tema]+'</svg>';
+  resumo.title='Tema: '+nome; resumo.setAttribute('aria-label','Tema: '+nome+'. Alterar tema da página'); }
 (function(){ let t='auto'; try{ t=localStorage.getItem('tema')||'auto'; }catch(e){} aplicaTema(t);
-  document.querySelectorAll('[data-tema]').forEach(b=>b.onclick=()=>{ aplicaTema(b.dataset.tema); try{ localStorage.setItem('tema',b.dataset.tema); }catch(e){} tudo(); }); })();
+  const painel=document.querySelector('.aparencia');
+  document.querySelectorAll('[data-tema]').forEach(b=>b.onclick=()=>{ aplicaTema(b.dataset.tema); painel.open=false; painel.querySelector('summary').focus({preventScroll:true});
+    try{ localStorage.setItem('tema',b.dataset.tema); }catch(e){} tudo(); });
+  painel.addEventListener('keydown',ev=>{ if(ev.key==='Escape'&&painel.open){ ev.preventDefault(); ev.stopPropagation(); painel.open=false; painel.querySelector('summary').focus({preventScroll:true}); } });
+  document.addEventListener('pointerdown',ev=>{ if(painel.open&&!painel.contains(ev.target)) painel.open=false; }); })();
 
 // ---------------------------------------------------------------- sobre
 function sobre(){
@@ -1923,6 +1970,19 @@ function mostraAba(a){
 }
 $('abas').onclick=e=>{ const b=e.target.closest('[data-aba]'); if(b) mostraAba(b.dataset.aba); };
 
+// ---------------------------------------------------------------- modo de análise
+// Simplificado | Detalhado, como no explorador PRODES (22/10/2026). O Simplificado usa a leitura agrupada e
+// esconde (por CSS, body[data-modo]) as abas, filtros e botões do detalhe. Os filtros aplicados ficam ao trocar
+// e continuam à vista em "Filtros aplicados".
+const ABAS_DET=new Set(['diverge','tabela','trajetorias']), GAV_DET=['ufbioma','aez','aezufbioma','dv'];
+function aplicaModo(m){ S.modo=m==='det'?'det':'simples'; document.body.dataset.modo=S.modo;
+  if(S.modo==='simples'){ if(S.vista!=='simples') S.vistaDet=S.vista; S.vista='simples'; S.antes=false; if(ABAS_DET.has(S.aba)) S.aba='virou'; if(M.tempo==='diverge') M.tempo='acum';
+    for(const d of GAV_DET) $('gav_'+d).classList.remove('aberta'); $('dSeguir').classList.remove('aberta'); }
+  else if(S.vista==='simples') S.vista=S.vistaDet||'historia';
+  document.querySelectorAll('button[data-modo]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.modo===S.modo)); }
+document.querySelectorAll('button[data-modo]').forEach(b=>b.onclick=()=>{ if(b.dataset.modo===S.modo) return;
+  aplicaModo(b.dataset.modo); S.linhaNo=null; montaSeguir(); tudo(); mostraAba(S.aba); });
+
 // ---------------------------------------------------------------- tudo
 function tudo(){
   pararAnim();
@@ -1934,7 +1994,7 @@ function tudo(){
 let rz; addEventListener('resize',()=>{ clearTimeout(rz); rz=setTimeout(()=>{ mede(); grafico(window.__ctx); antesDepois(window.__ctx); porAno(window.__ctx); idades(window.__ctx); acumulado(window.__ctx); },150); });
 $('avisoTeste').hidden=!D.teste;
 deURL();   // abre com todos os anos (2016-2024); um ano se escolhe nos filtros ou nos seletores
-montaFiltros(); montaSeguir(); sobre(); tudo(); mostraAba(S.aba);
+montaFiltros(); aplicaModo(S.modo); montaSeguir(); sobre(); tudo(); mostraAba(S.aba);
 
 // ---------------------------------------------------------------- autoconferência (?validar)
 if(location.search.includes('validar')){
