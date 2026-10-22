@@ -31,8 +31,12 @@ até a supressão. O MapBiomas é a lente do que veio depois.
   da tabela destaca nos dois sentidos; o quadro "Seleção no gráfico" mostra área e % (e a soma do
   que pode ser somado); "Aplicar seleção como filtro" ou duplo clique leva a página para ela (ano do
   desmatamento → filtro de ano; uso num momento → "Seguir uma área", que aceita "N anos depois do
-  desmatamento", várias classes e as duas pontas de um fluxo do Sankey); "← Voltar" desfaz. O foco
-  entra no link.
+  desmatamento", várias classes e as duas pontas de um fluxo do Sankey); a trilha "Início › …" e
+  "← Voltar" desfazem. Passar o mouse na legenda, na tabela ou num bloco do Sankey mostra a prévia.
+  Vale também no "Ano a ano" (barras, linhas, treemap, sunburst): a categoria da comparação vai para
+  o filtro dela. O foco entra no link.
+- **Cada gráfico com Baixar CSV, Baixar PNG e Copiar link**; embaixo do Sankey 1-3-5, a tabela dos
+  caminhos entre usos (de 1 para 5 anos depois: do mosaico, 18,5% virou agricultura).
 - **Legendas e números como no explorador:** cores numa linha em cima de cada gráfico, % dentro
   de cada parte da barra e uma tabela embaixo com os números do gráfico (área do PRODES e, em %
   dessa área, cada classe). O gráfico principal também em linhas.

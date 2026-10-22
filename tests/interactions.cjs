@@ -115,3 +115,44 @@ test('Foco no link e link antigo do Seguir',async()=>{
  assert.match(await v.locator('#fichas').innerText(),/Pastagem em 2018/);
  await v.close();
 });
+
+test('Prévia ao passar o mouse, CSV de cada gráfico e trilha dos filtros pelo gráfico',async()=>{
+ const p=await page('');
+ const pasto=await p.locator('#tabPA th[data-no]',{hasText:'Pastagem'}).getAttribute('data-no');
+ await p.locator(`#legPA .lg[data-no="${pasto}"]`).hover(); await p.waitForTimeout(150);
+ assert.equal(await p.evaluate(n=>[...document.querySelectorAll('#gPorAno rect[data-no]')].filter(r=>r.style.opacity!=='0.16').every(r=>r.dataset.no===n),pasto),true);
+ assert.equal(await p.evaluate(()=>(FOCO.gPorAno||[]).length),0);
+ await p.mouse.move(5,5); await p.waitForTimeout(150);
+ assert.equal(await p.evaluate(()=>[...document.querySelectorAll('#gPorAno rect[data-no]')].every(r=>r.style.opacity==='')),true);
+ const [dl]=await Promise.all([p.waitForEvent('download'),p.locator('[data-csv="tabPA"]').click()]);
+ assert.match(dl.suggestedFilename(),/historico_tabPA_.*\.csv/);
+ await p.locator(`#gPorAno g[data-col="3"] rect[data-no="${pasto}"]`).dblclick(); await p.waitForTimeout(500);
+ await p.locator('#tabAD tr[data-col="4"] td').first().click(); await p.waitForTimeout(400);
+ assert.match(await p.locator('#fichas').innerText(),/Pelo gráfico[\s\S]*Início[\s\S]*2019 · Pastagem 1 ano depois/i);
+ await p.locator('#fichas [data-volta="0"]').click(); await p.waitForTimeout(300);
+ assert.deepEqual(await p.evaluate(()=>[S.f.ano.size,S.seguir,PILHA.length]),[0,null,0]);
+ await p.close();
+});
+
+test('Caminhos entre usos embaixo do Sankey: duplo clique segue os dois momentos',async()=>{
+ const p=await page('');
+ assert.ok(await p.locator('#tabSI tr[data-row]').count()>3);
+ const pasto=await p.locator('#tabPA th[data-no]',{hasText:'Pastagem'}).getAttribute('data-no');
+ const agri=await p.locator('#tabPA th[data-no]',{hasText:'Agricultura'}).getAttribute('data-no');
+ await p.locator(`#tabSI tr[data-row="${pasto}"] td[data-no="${agri}"]`).dblclick(); await p.waitForTimeout(500);
+ assert.deepEqual(await p.evaluate(()=>S.seguir.conds),[{t:'k',v:1,nos:[+pasto]},{t:'k',v:5,nos:[+agri]}]);
+ await p.close();
+});
+
+test('Ano a ano: Configurar análise e foco com filtro também nas barras e no treemap',async()=>{
+ const p=await page('?modo=det&aba=tempo&g=treemap&e=bioma');
+ assert.equal(await p.locator('details.cfgAnalise').getAttribute('open'),'');
+ const r=p.locator('#gWrap g[data-col="0"] rect[data-no]').first(); const k=await p.locator('#gWrap g[data-col="0"]').getAttribute('data-selk');
+ await r.dblclick(); await p.waitForTimeout(500);
+ assert.deepEqual(await p.evaluate(()=>[...S.f.bioma.keys()]),[k]); assert.ok(await p.evaluate(()=>S.seguir&&S.seguir.conds.length===1));
+ await p.close();
+ const b=await page('?modo=det&aba=tempo&g=barras');
+ await b.locator('#gWrap g[data-col="2"] rect[data-no]').first().click(); await b.waitForTimeout(400);
+ assert.match(await b.locator('#sel_gWrap').innerText(),/Seleção no gráfico/i);
+ await b.close();
+});
