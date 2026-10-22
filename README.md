@@ -12,27 +12,40 @@ ao endereço para a página conferir a si mesma contra o PRODES rasterizado.
 O ponto de partida é o PRODES: pela definição dele, toda esta área era vegetação nativa
 até a supressão. O MapBiomas é a lente do que veio depois.
 
-- **Abas pelas perguntas:** *O que virou* (desmatamento acumulado ano a ano, antes e
-  depois da supressão, matriz) · *PRODES × MapBiomas* (onde e quanto os mapas discordam) ·
-  *Onde* (mapa) · *Ano a ano* (Sankey, linhas, barras, treemap e sunburst) ·
-  *Cruzamentos* · *Trajetórias* · *Sobre os dados*.
-- **Filtros de três estados** (+ precisa ter, − não pode ter): ano do desmatamento,
-  bioma (PRODES ou municipal), UF, UF × bioma, AEZ, AEZ × UF × bioma (o território)
-  e tipo de trajetória.
-- **Defasagem montável:** o MapBiomas leva 1 a 2 anos para ver a supressão do PRODES;
-  a página deixa olhar o uso no ano da supressão, 1, 2, 3... anos depois (padrão: 1).
-- **Vegetação nativa separada pelo que aconteceu com ela:** MapBiomas ainda não viu a
-  supressão (o uso aparece depois), MapBiomas não confirma o desmatamento (vegetação
-  nativa em todos os anos até 2025), voltou a ser vegetação (1º ano; 2+ anos).
+- **Modo de análise: Simplificado | Detalhado** (como no explorador PRODES). O
+  Simplificado (abre assim) agrupa os usos, junta em *Ainda vegetação no MapBiomas* o
+  que o MapBiomas atrasado, a folga de datas e o "não confirma" mostram, e fica com os
+  filtros ano, bioma, UF e tipo. O Detalhado tem todas as classes, filtros e abas. O
+  link guarda o modo; link sem `modo` (os antigos) abre no Detalhado.
+- **Abas pelas perguntas:** *O que virou* · *Onde* (mapa) · *Ano a ano* (Sankey,
+  linhas, barras, treemap e sunburst) · *Sobre os dados*; no Detalhado também
+  *PRODES × MapBiomas* (onde e quanto os mapas discordam), *Cruzamentos* e *Trajetórias*.
+- **O que virou pela mesma idade** (leitura do operacional, 22/10/2026): o gráfico
+  principal alinha cada ano de desmatamento pelos anos depois dele (o de 2016 no
+  MapBiomas 2017, o de 2020 no de 2021), com a opção dos mesmos anos de desmatamento em
+  todas as barras (2016-2020, até 5 anos depois); barras por ano do desmatamento; Sankey
+  1, 3 e 5 anos depois; "Ficou no mesmo uso?". O desmatamento acumulado vem depois, como
+  estoque: a barra cresce com o desmatamento novo.
+- **Topo como no explorador:** anos do desmatamento PRODES e o mapa do MapBiomas usado
+  nos números; filtros em gavetas (Território, Trajetória) e "Filtros aplicados".
+- **Filtros de três estados** (+ precisa ter, − não pode ter) nas gavetas: bioma (PRODES
+  ou municipal), UF, UF × bioma, AEZ, AEZ × UF × bioma (o território), tipo de trajetória
+  e PRODES × MapBiomas.
+- **O MapBiomas ainda mostra vegetação, e por quê:** MapBiomas atrasado (o uso aparece
+  depois), MapBiomas não confirma o desmatamento (vegetação nativa em todos os anos até
+  2025), voltou a aparecer como vegetação (1º ano; 2+ anos) — este último pode ser
+  regeneração ou oscilação do mapa. Nas pilhas, o uso fica embaixo e isso em cima.
 - **Mapa com linha do tempo:** desmatamento acumulado, só o de cada ano, anos depois
   da supressão, ano do PRODES e onde os mapas discordam; aperte ▶ e clique num ponto
   para ver a trajetória dele. Pixel de ~75 m no zoom máximo.
 - Animações (▶), CSV, PNG e link que reabre a mesma tela.
 
-Brasil, desmatamento 2016-2024, **1 ano depois da supressão**: 50,5% pastagem, 5,8%
-agricultura, 22,8% ainda vegetação nativa no MapBiomas — 15,8% em que o MapBiomas não
-confirma o desmatamento (desacordo entre os mapas), e o resto em que o uso ainda não
-apareceu ou que voltou a ser vegetação.
+Brasil, desmatamento 2016-2024, **1 ano depois do desmatamento**: 50,5% pastagem, 5,8%
+agricultura, 18,5% mosaico de usos, 22,0% ainda vegetação no MapBiomas (15,8% em que o
+MapBiomas não confirma o desmatamento e 6,2% em que o uso ainda não apareceu) e 0,83% que
+voltou a aparecer como vegetação. Nos desmatamentos de 2016 a 2020, de 1 para 5 anos
+depois: pastagem de 48,7% para 53,9%, agricultura de 7,6% para 11,6%, ainda vegetação no
+MapBiomas de 26,2% para 17,9%.
 
 ## De onde vêm os dados
 
@@ -48,8 +61,9 @@ apareceu ou que voltou a ser vegetação.
 ## Conferência
 
 2.120.876.129 pixels no cubo de trajetórias, os mesmos do PRODES rasterizado, ano a
-ano e bioma a bioma. A página confere a si mesma com `?validar`: área por ano ×
-bioma igual ao PRODES (54/54), colunas do Sankey, quebras e filtros somando o total.
+ano e bioma a bioma. A página confere a si mesma com `?validar` (7 conferências): área
+por ano × bioma igual ao PRODES (54/54), colunas do Sankey, quebras e filtros somando o
+total, e cada ano de desmatamento inteiro 1 ano depois.
 
 O endereço antigo `/v2/` redireciona para cá. A primeira versão (v1) está no
 histórico do repositório.
