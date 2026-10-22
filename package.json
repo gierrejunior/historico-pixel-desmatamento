@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "python3 scripts/build.py",
+    "check": "python3 scripts/build.py --check",
+    "test": "python3 -m unittest discover -s tests -p 'test_*.py' && node --test tests/interactions.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}

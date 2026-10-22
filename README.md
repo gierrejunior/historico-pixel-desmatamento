@@ -53,3 +53,19 @@ bioma igual ao PRODES (54/54), colunas do Sankey, quebras e filtros somando o to
 
 O endereço antigo `/v2/` redireciona para cá. A primeira versão (v1) está no
 histórico do repositório.
+
+## Como gerar e testar
+
+Mesmo modelo do [explorador-prodes](https://github.com/gierrejunior/explorador-prodes)
+(desde 22/10/2026): a página é `src/explorador_template.html`, versionada aqui, e os
+dados (o objeto `D`) entram por `scripts/build.py`.
+
+```
+python3 scripts/build.py            # template + dados do index.html publicado -> index.html
+python3 scripts/build.py --check    # confere que o index.html sai do template, byte a byte
+python3 scripts/build.py --data D.json   # dados novos, do 04_explorador_html.py
+npm install && npm test             # testes de build e de navegador (Playwright)
+```
+
+O mapa usa WebGL e é testado à parte, pelo `scripts/ferramentas/testa_mapa.mjs` do
+projeto. As tiles (`tiles/`) saem do `08_mapa_tiles.py`.
