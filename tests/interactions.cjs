@@ -24,3 +24,31 @@ test('Autoconferência aprovada',async()=>{
  const res=await p.evaluate(()=>window.__validacao);assert.ok(res.length>=6);assert.deepEqual(res.filter(r=>!r[1]).map(r=>r[0]),[]);
  assert.match(await p.locator('#painelValidacao').innerText(),/Autoconferência aprovada/);await p.close();
 });
+
+test('O que virou: mesma idade, por ano do desmatamento e 1, 3 e 5 anos depois',async()=>{
+ const p=await page('');
+ assert.match(await p.locator('#rVirou').innerText(),/1 ano depois do desmatamento .* nos desmatamentos de 2016 a 2020/s);
+ assert.match(await p.locator('#porAnoTit').innerText(),/virou 1 ano depois/);
+ assert.ok(await p.locator('#paSvg rect').count()>9);
+ assert.match(await p.locator('#idadesTit').innerText(),/1, 3 e 5 anos depois/);
+ assert.ok(await p.locator('#siSvg path').count()>0);
+ assert.match(await p.locator('#respVirou').textContent(),/Ficou no mesmo uso\?/);
+ await p.locator('[data-mesmos="1"]').click();
+ assert.match(await p.locator('#adSub').innerText(),/Os mesmos anos de desmatamento em todas as barras: 2016 a 2020/);
+ assert.ok(await p.evaluate(()=>paraURL().includes('mi=1')));
+ await p.close();
+});
+
+test('Um ano de desmatamento só: sem as barras por ano e com o Sankey até 2025',async()=>{
+ const p=await page('?f_ano=%2B2022');
+ assert.equal(await p.locator('#gPorAno').isVisible(),false);
+ assert.equal(await p.locator('#segMesmos').isVisible(),false);
+ assert.match(await p.locator('#idadesTit').innerText(),/1, 2 e 3 anos depois/);
+ await p.close();
+});
+
+test('Link antigo com o nome anterior do tipo continua filtrando',async()=>{
+ const p=await page('?f_tipo=%2BVoltou%20a%20ser%20vegeta%C3%A7%C3%A3o');
+ assert.match(await p.locator('#fichas').innerText(),/Voltou a aparecer como vegetação/);
+ await p.close();
+});
