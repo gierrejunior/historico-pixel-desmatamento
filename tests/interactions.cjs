@@ -58,11 +58,11 @@ test('Simplificado ao abrir; Detalhado pelo botão e pelos links antigos',async(
  assert.equal(await p.evaluate(()=>document.body.dataset.modo),'simples');
  assert.equal(await p.locator('#abas [data-aba="diverge"]').isVisible(),false);
  assert.equal(await p.locator('.gavBtn[data-gav="aez"]').isVisible(),false);
- assert.match(await p.locator('#legPorAno').textContent(),/Ainda vegetação no MapBiomas/);
+ assert.match(await p.locator('#legPA').textContent(),/Ainda vegetação no MapBiomas/);
  await p.locator('button[data-modo="det"]').click();
  assert.equal(await p.locator('#abas [data-aba="diverge"]').isVisible(),true);
  assert.equal(await p.locator('.gavBtn[data-gav="aez"]').isVisible(),true);
- assert.match(await p.locator('#legPorAno').textContent(),/MapBiomas atrasado/);
+ assert.match(await p.locator('#legPA').textContent(),/MapBiomas atrasado/);
  assert.ok(await p.evaluate(()=>paraURL().includes('modo=det')));
  await p.close();
  const v=await page('?aba=diverge&f_bioma=%2BCerrado');   // link de antes do Simplificado

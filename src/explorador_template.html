@@ -269,6 +269,24 @@ body[data-modo="simples"] .gavBtn[data-gav="dv"],body[data-modo="simples"] .gavB
 body[data-modo="simples"] #gav_ufbioma,body[data-modo="simples"] #gav_aez,body[data-modo="simples"] #gav_aezufbioma,body[data-modo="simples"] #gav_dv,body[data-modo="simples"] #dSeguir,
 body[data-modo="simples"] .pgrupo:has(#segVista),body[data-modo="simples"] .btnAntes,body[data-modo="simples"] #gMat,
 body[data-modo="simples"] #segTempo [data-t="diverge"],body[data-modo="simples"] #segDivDet{display:none!important}
+/* legenda e números dos gráficos, como no explorador PRODES: cores numa linha em cima, números na tabela embaixo */
+.legLinha{display:flex;flex-wrap:wrap;align-items:center;gap:5px 14px;margin:4px 0 8px;font-size:11.5px;color:var(--tinta)}
+.legLinha:empty{display:none}
+.legLinha .lg{display:inline-flex;align-items:center;gap:5px}
+.legLinha i{width:10px;height:10px;border-radius:2px;flex:none;border:1px solid color-mix(in srgb,var(--tinta) 20%,transparent)}
+.legLinha .lt{font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--suave);font-weight:600;margin-left:8px}
+.legLinha .lt:first-child{margin-left:0}
+.tabDados{margin-top:10px}
+.tabDados caption{caption-side:top;text-align:left;font-size:12px;color:var(--suave);padding:8px 10px 6px;white-space:normal}
+.tabDados th{white-space:normal;vertical-align:bottom;line-height:1.25;min-width:68px}
+.tabDados th i,.tabClasses td i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;border:1px solid color-mix(in srgb,var(--tinta) 20%,transparent)}
+.tabDados td:first-child,.tabDados th:first-child{text-align:left;position:sticky;left:0;background:var(--fundo)}
+.tabDados th:first-child{background:var(--painel);z-index:2}
+.tabDados tr.sep td{border-top:2px solid var(--linha);font-weight:600}
+.tabDados td.z{color:var(--suave)}
+.tabDados tr.grupo td{font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--suave);font-weight:600;background:var(--painel)}
+.tabClasses{grid-column:1/-1;max-height:none}
+.legv b{margin-left:8px}
 </style></head><body><div class="wrap">
 <div class="topo">
  <h1>FGV Agro - O que o desmatamento virou</h1>
@@ -314,18 +332,21 @@ body[data-modo="simples"] #segTempo [data-t="diverge"],body[data-modo="simples"]
   <button role="tab" data-aba="virou">O que virou</button><button role="tab" data-aba="diverge">PRODES × MapBiomas</button><button role="tab" data-aba="mapa">Onde (mapa)</button><button role="tab" data-aba="tempo">Ano a ano</button><button role="tab" data-aba="tabela">Cruzamentos</button><button role="tab" data-aba="trajetorias">Trajetórias</button><button role="tab" data-aba="sobre">Sobre os dados</button>
  </nav>
  <div class="aba" data-aba="virou">
-  <div class="pergunta"><h2>O que a área desmatada pelo PRODES se tornou com o passar dos anos?</h2><p class="resp" id="rVirou"></p></div>
+  <div class="pergunta"><h2>Como a área desmatada pelo PRODES é ocupada, e como esse uso muda com os anos?</h2><p class="resp" id="rVirou"></p></div>
   <div class="respostas" id="respVirou"></div>
  <section class="painel">
   <div class="pcab"><div><h2>O que virou, ano a ano depois do desmatamento<span id="i_ad"></span></h2><p id="adSub"></p></div>
-   <div class="acoes"><span class="seg mini" role="group" aria-label="Anos de desmatamento nas barras" id="segMesmos"><button data-mesmos="0">todos os anos de desmatamento</button><button data-mesmos="1" id="btMesmos">os mesmos em todas as barras</button></span><button id="animAD" class="anim" title="mostra as barras ano a ano">▶ animar</button><button class="btnAntes" aria-pressed="false" title="mostra também o que o MapBiomas via nos 3 anos antes do desmatamento — pelo PRODES, ainda era vegetação nativa; é a divergência entre os mapas">mostrar o que o MapBiomas via antes (divergência)</button><button id="pngAD">PNG</button></div></div>
+   <div class="acoes"><span class="seg mini" role="group" aria-label="Tipo de gráfico" id="segADg"><button data-adg="barras">Barras</button><button data-adg="linhas">Linhas</button></span><span class="seg mini" role="group" aria-label="Anos de desmatamento nas barras" id="segMesmos"><button data-mesmos="0">todos os anos de desmatamento</button><button data-mesmos="1" id="btMesmos">os mesmos em todas as barras</button></span><button id="animAD" class="anim" title="mostra as barras ano a ano">▶ animar</button><button class="btnAntes" aria-pressed="false" title="mostra também o que o MapBiomas via nos 3 anos antes do desmatamento — pelo PRODES, ainda era vegetação nativa; é a divergência entre os mapas">mostrar o que o MapBiomas via antes (divergência)</button><button id="pngAD">PNG</button></div></div>
+  <div class="legLinha" id="legAD"></div>
   <div class="grafico" id="gAD"></div>
+  <div id="tabAD"></div>
  </section>
  <section class="painel">
   <div class="pcab"><div><h2><span id="porAnoTit">O que cada ano de desmatamento virou</span><span id="i_porAno"></span></h2><p id="porAnoSub"></p></div>
    <div class="acoes"><button id="pngPA">PNG</button></div></div>
+  <div class="legLinha" id="legPA"></div>
   <div class="grafico" id="gPorAno"></div>
-  <div class="legv" id="legPorAno"></div>
+  <div id="tabPA"></div>
  </section>
  <section class="painel">
   <div class="pcab"><div><h2><span id="idadesTit">Para onde foi cada uso</span><span id="i_idades"></span></h2><p id="idadesSub"></p></div>
@@ -335,8 +356,15 @@ body[data-modo="simples"] #segTempo [data-t="diverge"],body[data-modo="simples"]
  <section class="painel">
   <div class="pcab"><div><h2>Desmatamento acumulado e o que ele virou<span id="i_acum"></span></h2><p id="acumSub"></p></div>
    <div class="acoes"><button id="animAC" class="anim" title="mostra as barras ano a ano">▶ animar ano a ano</button><button id="pngAC">PNG</button></div></div>
+  <div class="legLinha" id="legAC"></div>
   <div class="grafico" id="gAcum"></div>
-  <div class="legv" id="legAcum"></div>
+  <div id="tabAC"></div>
+ </section>
+ <section class="painel">
+  <div class="pcab"><div><h2><span id="origTit">De onde veio o aumento da pastagem, ano a ano</span><span id="i_orig"></span></h2><p id="origSub"></p></div>
+   <div class="acoes"><span class="seg mini" role="group" aria-label="Uso" id="segOrig"><button data-orig="pasto">Pastagem</button><button data-orig="agri">Agricultura</button><button data-orig="mos">Mosaico de usos</button></span><button id="pngOR">PNG</button></div></div>
+  <div class="grafico" id="gOrig"></div>
+  <div id="tabOR"></div>
  </section>
  <details class="painel gaveta" id="gMat"><summary>Matriz ano a ano: cada ano de desmatamento, do PRODES a 2025 (para quem quer o detalhe)</summary>
   <div class="pcab"><div><h2><span id="matTit">Matriz: ano do desmatamento × ano do MapBiomas</span><span id="i_mat"></span></h2><p id="matSub"></p></div>
@@ -404,8 +432,8 @@ body[data-modo="simples"] #segTempo [data-t="diverge"],body[data-modo="simples"]
  </section>
  <div class="gnota" id="gNota"></div>
  <div class="gdica" id="gDica">↔ deslize o gráfico para ver todas as colunas</div>
+ <div class="legLinha" id="leg"></div>
  <div class="grafico" id="gWrap"></div>
- <div class="legv" id="leg"></div>
  </div>
  <div class="aba" data-aba="tabela">
  <section class="painel">
@@ -536,7 +564,7 @@ function areaTerritorio(d,k,def){
 
 // ---------------------------------------------------------------- estado da tela
 const S={f:{}, modo:'simples', vistaDet:'historia', def:'prodes', vista:'historia', val:'ha', ano:NA-1, lente:'n', N:1, mNo:'nat', matCol:'cal', antes:false, aba:'virou', eixos:[], graf:'sankey', col:'lag', linhaNo:null,
-         seguir:null, sel:new Set(), ord:['area',-1], tjN:25, busca:{}, mesmos:false};
+         seguir:null, sel:new Set(), ord:['area',-1], tjN:25, busca:{}, mesmos:false, adGraf:'barras', orig:'pasto'};
 for(const [d] of DIMS) S.f[d]=new Map();
 const V=()=>D.vistas[S.vista];
 let INC={};
@@ -910,7 +938,7 @@ function sankeyG(o){
 // destaque cruzado: linhas marcadas na tabela acendem no gráfico, e vice-versa
 const dim=k=>(S.eixos.length&&S.sel.size&&!S.sel.has(k))? 0.2 : 1;
 const svgDe=(W,H,conteudo,rot)=>`<svg id="gSvg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(rot)}">${conteudo}</svg>`;
-function legenda(){ $('leg').innerHTML=legendaHTML(null); }
+function legenda(){ $('leg').innerHTML=legLinha(null); }
 
 const ANIM={g:null, ad:null, ac:null, timer:null, alvo:null, lim:{g:{min:0,max:0},ad:{min:0,max:0},ac:{min:0,max:0}}};
 let ANIMLIM={min:0,max:0};
@@ -996,9 +1024,9 @@ function grafico(ctx){
   const svg=$('gSvg'); $('gDica').classList.toggle('mostra',!!svg && +svg.getAttribute('width')>GW+4);
 }
 function linhas(rots,series,eixoY){
-  const W=Math.max(GW,280+60*rots.length), H=360, L=48, Rm=190, TOP=16, BOT=34;
+  const W=Math.max(GW,300+60*rots.length), H=360, L=48, Rm=210, TOP=16, BOT=34;
   let ymax=Math.max(5,...series.flatMap(s=>s.ys.filter(y=>isFinite(y)))); ymax=Math.min(100,Math.ceil(ymax/10)*10);
-  const x=i=>L+(rots.length>1? i*(W-L-Rm)/(rots.length-1) : (W-L-Rm)/2), y=v=>TOP+(H-TOP-BOT)*(1-v/ymax);
+  const x=i=>L+(rots.length>1? i*(W-L-Rm-40)/(rots.length-1) : (W-L-Rm)/2), y=v=>TOP+(H-TOP-BOT)*(1-v/ymax);
   ANIMLIM.max=Math.max(ANIMLIM.max,rots.length-1);
   if(ANIM.g!=null) series=series.map(se=>({...se,ys:se.ys.map((v,i)=>i>ANIM.g?NaN:v)}));
   let s='';
@@ -1013,7 +1041,7 @@ function linhas(rots,series,eixoY){
     s+='</g>'; let li=se.ys.length-1; while(li>=0&&!isFinite(se.ys[li])) li--; if(li>=0) fins.push({y:y(se.ys[li]),x:x(li),nome:se.nome,cor:se.cor,v:se.ys[li],op}); }
   // nome na ponta só das 12 maiores (≥ 0,5%); as outras estão na legenda abaixo
   const rotul=fins.filter(f=>f.v>=0.5).sort((a,b)=>b.v-a.v).slice(0,12);
-  for(const f of rotul){ f.ls=quebra(`${f.nome} ${fp(f.v)}`,10.5,Rm-14); f.yc=f.y-6+f.ls.length*6; f.h=f.ls.length*12; }
+  for(const f of rotul){ f.ls=quebra(`${f.nome} ${fp(f.v)}`,10.5,Rm-30); f.yc=f.y-6+f.ls.length*6; f.h=f.ls.length*12; }
   espalha(rotul,TOP-8,H+400); let Hs=H;
   for(const f of rotul){ s+=`<text x="${f1(W-Rm+8)}" y="${f1(f.yt+9)}" font-size="10.5" fill="${f.cor}" style="fill:${f.cor}" opacity="${f.op}">${tspans(f.ls,W-Rm+8,12)}</text>`; Hs=Math.max(Hs,f.yt+f.h+4); }
   return svgDe(W,Hs,s,'Linhas de evolução do uso');
@@ -1030,8 +1058,8 @@ function barrasV(cols){
     if(oculta) return;
     if(c.prodes!=null){ const h=(S.val==='pct'?100:t)/mx*(H-TOP-BOT);
       s+=`<rect${novo?' class="cresce"':''} x="${f1(xs(i)-bw/2)}" y="${f1(H-BOT-h)}" width="${f1(bw)}" height="${f1(h)}" fill="${COR_EP}" data-t="${esc(`<b>PRODES</b><br>Pelo PRODES, toda esta área era vegetação nativa até o ano do desmatamento (o PRODES só marca supressão de vegetação nativa).<br>${fha(t)}`)}"/>`; return; }
-    vi.nos.forEach((n,g)=>{ const v=c.v[g]; if(!v) return; const h=(S.val==='pct'?v/t*100:v)/mx*(H-TOP-BOT); yy-=h;
-      s+=`<rect${novo?' class="cresce"':''} x="${f1(xs(i)-bw/2)}" y="${f1(yy)}" width="${f1(bw)}" height="${f1(h)}" fill="${n[1]}" data-t="${esc(`<b>${esc(n[0])}</b>, ${esc(c.rot)}<br>${fha(v)} · ${fp(v/t*100)}`+(c.anos?`<br>anos de desmatamento: ${c.anos.join(', ')}`:''))}"/>`; }); });
+    // mesma pilha dos outros gráficos: uso embaixo, vegetação no MapBiomas em cima, % dentro de cada parte
+    s+=pilha(c.v,(S.val==='pct'?100/t:1)/mx*(H-TOP-BOT),xs(i),bw,H-BOT,(g,v)=>`<b>${esc(vi.nos[g][0])}</b>, ${esc(c.rot)}<br>${fha(v)} · ${fp(v/t*100)}`+(c.anos?`<br>anos de desmatamento: ${c.anos.join(', ')}`:''),novo?' class="cresce"':'',t).s; });
   return svgDe(W,H,s,'Barras da composição do uso');
 }
 function barrasH(g){
@@ -1141,13 +1169,13 @@ function perguntas(ctx){
   // 4b. permanência (operacional, 22/10/2026): do uso 1 ano depois ao uso H anos depois, nos mesmos anos de
   // desmatamento, pelas trajetórias embutidas
   { const m=mesmaIdade(coortes(ids));
-    if(m&&m.H>=2){ const G=e=>E_PASTO.includes(e)?'pasto':E_AGRI.includes(e)?'agri':E_MOS.includes(e)?'mos':E_SILV.includes(e)?'silv':VEG_MB.includes(e)||VOLTOU.includes(e)?'veg':'out', M={};
-      for(const i of ids){ const A=coorteDe(i); if(!m.cs.includes(A)) continue; const j1=A+1-D.anos_mb[0], j2=A+m.H-D.anos_mb[0], x=D.tj[i];
-        for(let k=0;k<x.length;k+=2){ const s_=x[k]; if(!casa(s_)) continue; const a=G(s_.charCodeAt(j1)-97), b=G(s_.charCodeAt(j2)-97); (M[a]??={})[b]=(M[a][b]||0)+x[k+1]; } }
+    if(m&&m.H>=2){ const G=e=>E_PASTO.includes(e)?'pasto':E_AGRI.includes(e)?'agri':E_MOS.includes(e)?'mos':E_SILV.includes(e)?'silv':VEG_MB.includes(e)||VOLTOU.includes(e)?'veg':'out', M={}, mid=m.H>=3? Math.ceil((1+m.H)/2) : 0, MM={};
+      for(const i of ids){ const A=coorteDe(i); if(!m.cs.includes(A)) continue; const j1=A+1-D.anos_mb[0], j2=A+m.H-D.anos_mb[0], jm=A+mid-D.anos_mb[0], x=D.tj[i];
+        for(let k=0;k<x.length;k+=2){ const s_=x[k]; if(!casa(s_)) continue; const a=G(s_.charCodeAt(j1)-97), b=G(s_.charCodeAt(j2)-97); (M[a]??={})[b]=(M[a][b]||0)+x[k+1]; if(mid&&G(s_.charCodeAt(jm)-97)===a) MM[a]=(MM[a]||0)+x[k+1]; } }
       const tg=g=>soma(Object.values(M[g]||{})), pp=(a,b)=>fp(((M[a]||{})[b]||0)/tg(a)*100), USOS=['pasto','agri','mos','silv'];
-      const tU=USOS.reduce((s_,g)=>s_+tg(g),0), mesmo=USOS.reduce((s_,g)=>s_+((M[g]||{})[g]||0),0);
+      const tU=USOS.reduce((s_,g)=>s_+tg(g),0), mesmo=USOS.reduce((s_,g)=>s_+((M[g]||{})[g]||0),0), mesmoM=USOS.reduce((s_,g)=>s_+(MM[g]||0),0);
       if(tU){ const nomes={pasto:['Pastagem',HIST[4][1]],agri:['Agricultura',HIST[5][1]],mos:['Mosaico de usos',HIST[8][1]],silv:['Silvicultura',HIST[7][1]],veg:['Voltou a aparecer como vegetação',HIST[3][1]],out:['Outros',HIST[9][1]]};
-        OUT.virou.push(q(`Ficou no mesmo uso? (1 e ${m.H} anos depois)`,`${m.cs.length>1?'Desmatamentos':'Desmatamento'} de ${faixaAnos(m.cs)}: da área com uso 1 ano depois do desmatamento, <b>${fp(mesmo/tU*100)}</b> estava no mesmo uso ${m.H} anos depois.`+
+        OUT.virou.push(q(`Ficou no mesmo uso? (${mid?mid+' e ':''}${m.H} anos depois)`,`${m.cs.length>1?'Desmatamentos':'Desmatamento'} de ${faixaAnos(m.cs)}: da área com uso 1 ano depois do desmatamento, `+(mid? `<b>${fp(mesmoM/tU*100)}</b> estava no mesmo uso ${mid} anos depois e <b>${fp(mesmo/tU*100)}</b> ${m.H} anos depois.` : `<b>${fp(mesmo/tU*100)}</b> estava no mesmo uso ${m.H} anos depois.`)+
           (tg('pasto')? ` Da que era <b>pastagem</b>, <b>${pp('pasto','pasto')}</b> seguia pastagem, <b>${pp('pasto','agri')}</b> virou agricultura e <b>${pp('pasto','veg')}</b> voltou a aparecer como vegetação.` : '')+
           (tg('agri')? ` Da que era <b>agricultura</b>, <b>${pp('agri','agri')}</b> seguia agricultura.` : ''),
           tg('pasto')? `<div style="font-size:11.5px;color:var(--suave);margin-bottom:4px">O que era pastagem 1 ano depois, ${m.H} anos depois:</div>`+pilha_(Object.keys(nomes).map(g=>[nomes[g][0],(M.pasto||{})[g]||0,nomes[g][1]])) : '')); } } }
@@ -1287,7 +1315,7 @@ function acumulado(ctx){
       else somaCompy(vE,i,j); }
     return {Y,v:paraNos(vE)}; });
   const tots=cols.map(c=>soma(c.v)), mx=Math.max(...tots);
-  if(!(mx>0)){ $('gAcum').innerHTML='<div class="vazio">Nenhuma área no recorte.</div>'; $('legAcum').innerHTML=''; return; }
+  if(!(mx>0)){ $('gAcum').innerHTML='<div class="vazio">Nenhuma área no recorte.</div>'; $('legAC').innerHTML=''; $('tabAC').innerHTML=''; return; }
   const n=cols.length, W=Math.max(360,GW-32), H=380, L=64, TOP=28, BOT=30, bw=Math.min(66,(W-L-20)/n*0.72), xs=i=>L+(i+0.5)*(W-L-20)/n;
   ANIM.lim.ac={min:0,max:n-1};
   let s='';
@@ -1296,18 +1324,57 @@ function acumulado(ctx){
   cols.forEach((c,i)=>{ const oculta=ANIM.ac!=null&&i>ANIM.ac, novo=ANIM.ac===i, t=tots[i];
     s+=`<text x="${f1(xs(i))}" y="${H-BOT+16}" text-anchor="middle" font-size="11.5" font-weight="600" class="s"${oculta?' opacity=".35"':''}>${c.Y}</text>`;
     if(oculta||!t) return; ultimo=i;
-    const p=pilha(c.v,(H-TOP-BOT)/mx,xs(i),bw,H-BOT,(g,v)=>`<b>${esc(vi.nos[g][0])}</b> em ${c.Y}<br>${fha(v)} · ${fp(v/t*100)} do desmatado até ${c.Y}`);
+    const p=pilha(c.v,(H-TOP-BOT)/mx,xs(i),bw,H-BOT,(g,v)=>`<b>${esc(vi.nos[g][0])}</b> em ${c.Y}<br>${fha(v)} · ${fp(v/t*100)} do desmatado até ${c.Y}`,'',t);
     s+=`<g${novo?' class="cresce"':''}>${p.s}</g><text x="${f1(xs(i))}" y="${f1(p.y-6)}" text-anchor="middle" font-size="11" font-weight="600"${novo?' class="entra"':''}>${fhaC(t)}</text>`; });
   $('gAcum').innerHTML=`<svg id="acSvg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="Desmatamento acumulado e o que ele virou">${s}</svg>`;
-  const Yu=cols[ultimo].Y;
-  $('legAcum').innerHTML=legendaHTML(cols[ultimo].v,`Em ${Yu}: o que é hoje a área desmatada pelo PRODES até ${Yu} (${fha(tots[ultimo])})`);
-  // de onde veio o aumento da pastagem: desmatamento novo ou mudança de uso na área já desmatada
-  let cresc=''; const j0=tots.findIndex(x=>x>0), jl=NA-1;
-  if(!S.seguir&&j0>=0&&j0<jl){ const Y0=D.anos_mb[j0], pas=(novo,j)=>{ const v=new Float64Array(NE); for(const i of ids) if((coorteDe(i)>Y0)===novo) somaCompy(v,i,j); return somaEst(v,E_PASTO); };
-    const p0=pas(false,j0), pv=pas(false,jl), pn=pas(true,jl), csN=coortes(ids).filter(a=>a>Y0);
-    if(csN.length&&pv+pn>p0) cresc=` De ${Y0} a ${D.anos_mb[jl]}, a pastagem passou de <b>${fha(p0)}</b> para <b>${fha(pv+pn)}</b>: <b>${fha(pn)}</b> é desmatamento de ${faixaAnos(csN)} que virou pastagem, e a área desmatada até ${Y0} ${pv>=p0?'ganhou':'perdeu'} <b>${fha(Math.abs(pv-p0))}</b> de pastagem.`; }
-  $('acumSub').innerHTML=`Cada barra é todo o desmatamento do PRODES até aquele ano (de 2016 em diante), pintado pelo que o MapBiomas mostra naquele ano. A barra cresce porque o desmatamento de cada ano se soma ao dos anteriores: a mesma cor maior não quer dizer que a mesma área mudou de uso.`+cresc+` A barra de 2017 já traz o desmatamento de 2016 (o MapBiomas 10 m começa em 2017).`;
+  const tv=new Float64Array(vi.nos.length); cols.forEach(c=>c.v.forEach((x,k)=>tv[k]+=x)); $('legAC').innerHTML=legLinha(tv);
+  $('tabAC').innerHTML=tabelaBarras({cap:'Números do gráfico: todo o desmatamento do PRODES até cada ano e, em % dessa área, o que o MapBiomas mostra naquele ano.',
+    rot:'Ano do MapBiomas', area:'Desmatado até o ano (ha)', linhas:cols.filter((c,i)=>tots[i]>0).map(c=>({rot:String(c.Y), a:S.seguir? null : ids.reduce((s_,i)=>s_+(coorteDe(i)<=c.Y?D.ca[i]:0),0), v:c.v}))});
+  $('acumSub').innerHTML=`Cada barra é todo o desmatamento do PRODES até aquele ano (de 2016 em diante), pintado pelo que o MapBiomas mostra naquele ano. A barra cresce porque o desmatamento de cada ano se soma ao dos anteriores: a mesma cor maior não quer dizer que a mesma área mudou de uso — o gráfico seguinte separa as duas coisas. A barra de 2017 já traz o desmatamento de 2016 (o MapBiomas 10 m começa em 2017).`;
 }
+
+// ---------------------------------------------------------------- de onde veio o aumento
+// Operacional (22/10/2026): separar a entrada de desmatamento novo da troca de uso. Para cada ano do MapBiomas,
+// a variação de um uso na área desmatada, pelas transições do ano anterior: o que entrou vindo do desmatamento
+// novo (inclui a folga de datas e o MapBiomas adiantado), do uso que o MapBiomas mostrou com atraso e de outros
+// usos (ou de vegetação de novo), e o que saiu para outro uso ou voltou a aparecer como vegetação.
+const ORIG_USOS={pasto:['pastagem',E_PASTO],agri:['agricultura',E_AGRI],mos:['mosaico de usos',E_MOS]};
+const ORIG_PARTES=[['novo','Desmatamento novo','#2f9e5b'],['atraso','Uso que o MapBiomas mostrou com atraso','#e8743b'],['troca','Veio de outro uso ou de vegetação de novo','#8e6bbf'],['saiu','Saiu para outro uso ou voltou a aparecer como vegetação','#c0392b']];
+function origemAnos(T,U){ const ehU=new Array(NE).fill(false); U.forEach(e=>ehU[e]=true); const NOVO=new Set([EP,AD,...E_FOLGA]), ATR=new Set(E_ANTES), r=[];
+  for(let p=0;p<NP;p++){ const x={Y:D.anos_mb[p+1],novo:0,atraso:0,troca:0,saiu:0};
+    for(let d=0;d<NE;d++) for(let e=0;e<NE;e++){ const v=T[p*NE2+d*NE+e]; if(!v||ehU[d]===ehU[e]) continue;
+      if(ehU[e]){ if(NOVO.has(d)) x.novo+=v; else if(ATR.has(d)) x.atraso+=v; else x.troca+=v; } else x.saiu+=v; }
+    x.liq=x.novo+x.atraso+x.troca-x.saiu; r.push(x); }
+  return r; }
+function origens(ctx){
+  const sec=$('gOrig').closest('.painel'); sec.hidden=!!S.seguir||!ctx.ids.length; if(sec.hidden) return;
+  document.querySelectorAll('#segOrig [data-orig]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.orig===S.orig));
+  const [nomeU,U]=ORIG_USOS[S.orig]||ORIG_USOS.pasto, anos=origemAnos(ctx.T,U), u0=somaEst(compE(ctx.T,0),U), uL=somaEst(compE(ctx.T,NA-1),U);
+  const tot=k=>soma(anos.map(x=>x[k])), mxP=Math.max(1,...anos.map(x=>x.novo+x.atraso+x.troca)), mxN=Math.max(0,...anos.map(x=>x.saiu));
+  const n=anos.length, W=Math.max(360,GW-32), L=64, BOT=30, xs=i=>L+(i+0.5)*(W-L-20)/n, bw=Math.min(60,(W-L-20)/n*0.62);
+  // legenda dentro do SVG (sai no PNG), quebrando linha quando não cabe
+  let s='', lx=L, ly=6;
+  for(const [,nome,cor] of ORIG_PARTES){ const w=16+larg(nome,11)+16; if(lx>L&&lx+w>W-10){ lx=L; ly+=17; } s+=`<rect x="${f1(lx)}" y="${ly}" width="10" height="10" rx="2" fill="${cor}"/><text x="${f1(lx+15)}" y="${ly+9}" font-size="11">${esc(nome)}</text>`; lx+=w; }
+  const TOP=ly+40, H=TOP+270, esc_=(H-TOP-BOT)/(mxP+mxN), y0=TOP+mxP*esc_;
+  for(const f of [mxP,mxP/2,0,-mxN]){ if(f<0&&!mxN) continue; const y=y0-f*esc_; s+=`<line x1="${L}" x2="${W-20}" y1="${f1(y)}" y2="${f1(y)}" stroke="${f===0?'var(--tinta)':'var(--linha)'}"${f===0?' stroke-opacity=".5"':''}/><text x="${L-6}" y="${f1(y+4)}" text-anchor="end" font-size="10.5" class="s">${f<0?'−':''}${fhaC(Math.abs(f))}</text>`; }
+  anos.forEach((a,i)=>{ let y=y0;
+    for(const [k,nome,cor] of ORIG_PARTES.slice(0,3)){ const h=a[k]*esc_; if(h<=0) continue; y-=h; s+=`<rect x="${f1(xs(i)-bw/2)}" y="${f1(y)}" width="${f1(bw)}" height="${f1(h)}" fill="${cor}" data-t="${esc(`<b>${nome}</b> → ${nomeU}, ${a.Y-1} → ${a.Y}<br>${fha(a[k])}`)}"/>`; }
+    const hs=a.saiu*esc_; if(hs>0) s+=`<rect x="${f1(xs(i)-bw/2)}" y="${f1(y0)}" width="${f1(bw)}" height="${f1(hs)}" fill="${ORIG_PARTES[3][2]}" data-t="${esc(`<b>${ORIG_PARTES[3][1]}</b>, ${a.Y-1} → ${a.Y}<br>${fha(a.saiu)} de ${nomeU}`)}"/>`;
+    const dv=somaEst(compE(ctx.T,i+1),U)-somaEst(compE(ctx.T,i),U);
+    s+=`<text x="${f1(xs(i))}" y="${f1(y-6)}" text-anchor="middle" font-size="11" font-weight="600">${dv>=0?'+':'−'}${fhaC(Math.abs(dv))}</text>`+
+      `<text x="${f1(xs(i))}" y="${H-BOT+16}" text-anchor="middle" font-size="11.5" font-weight="600" class="s">${a.Y}</text>`; });
+  $('gOrig').innerHTML=`<svg id="orSvg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="De onde veio o aumento de ${nomeU}">${s}</svg>`;
+  $('origTit').textContent=`De onde veio o aumento da ${nomeU}, ano a ano`;
+  $('origSub').innerHTML=`Cada barra é o quanto a ${nomeU} da área desmatada mudou de um ano para o outro, separado pela origem; em cima de cada barra, a variação líquida. De ${D.anos_mb[0]} a ${D.anos_mb[NA-1]}, a ${nomeU} passou de <b>${fha(u0)}</b> para <b>${fha(uL)}</b>: entraram <b>${fha(tot('novo'))}</b> do desmatamento novo, <b>${fha(tot('atraso'))}</b> do uso que o MapBiomas mostrou com atraso e <b>${fha(tot('troca'))}</b> de outros usos ou de vegetação de novo; saíram <b>${fha(tot('saiu'))}</b>.`;
+  const cel=v=>`<td>${v? fhaT(v) : '—'}</td>`;
+  $('tabOR').innerHTML=`<div class="tabwrap tabDados"><table><caption>Números do gráfico, em hectares: a ${nomeU} da área desmatada em cada ano do MapBiomas e de onde veio a variação desde o ano anterior.</caption><thead><tr><th>Ano do MapBiomas</th><th>${esc(nomeU[0].toUpperCase()+nomeU.slice(1))} no ano (ha)</th>`+
+    ORIG_PARTES.map(([,nome,cor])=>`<th><i style="background:${cor}"></i>${esc(nome)} (ha)</th>`).join('')+`<th>Variação (ha)</th></tr></thead><tbody>`+
+    `<tr><td>${D.anos_mb[0]}</td><td>${fhaT(u0)}</td><td class="z" colspan="5">primeiro ano do MapBiomas 10 m</td></tr>`+
+    anos.map((a,i)=>{ const u=somaEst(compE(ctx.T,i+1),U), dv=u-somaEst(compE(ctx.T,i),U); return `<tr><td>${a.Y}</td><td>${fhaT(u)}</td>${cel(a.novo)}${cel(a.atraso)}${cel(a.troca)}${a.saiu?`<td>−${fhaT(a.saiu)}</td>`:'<td>—</td>'}<td>${dv<0?'−':'+'}${fhaT(Math.abs(dv))}</td></tr>`; }).join('')+
+    `<tr class="sep"><td>${D.anos_mb[1]}–${D.anos_mb[NA-1]}</td><td>${fhaT(uL)}</td>${cel(tot('novo'))}${cel(tot('atraso'))}${cel(tot('troca'))}<td>−${fhaT(tot('saiu'))}</td><td>${uL-u0<0?'−':'+'}${fhaT(Math.abs(uL-u0))}</td></tr></tbody></table></div>`;
+}
+$('segOrig').onclick=e=>{ const b=e.target.closest('[data-orig]'); if(!b) return; S.orig=b.dataset.orig; origens(window.__ctx); };
+$('pngOR').onclick=()=>png($('orSvg'),`historico_origem_${S.orig}.png`,$('origTit').textContent,subPNG(false),false);
 
 // ---------------------------------------------------------------- animação dos gráficos
 function pararAnim(){ if(ANIM.timer) clearInterval(ANIM.timer); ANIM.timer=null; const a=ANIM.alvo; ANIM.alvo=null; ANIM.g=null; ANIM.ad=null; ANIM.ac=null;
@@ -1328,6 +1395,12 @@ function nosVeg(vi){ const s=new Set(); for(let e=0;e<EP;e++) if(D.st_do[e]>=0) 
 // nós só de calendário e datas: o adiantado e os da folga (quando a leitura os separa)
 const nosCal=vi=>new Set([vi.de[AD],...vi.nos.map((n,i)=>/folga de datas/.test(n[0])?i:-1).filter(i=>i>=0)]);
 function legendaHTML(vals,titulo){
+  // com valores (a legenda do mapa): uma tabela pequena, como a do explorador — classe, área e % da área no mapa
+  if(vals){ const vi=V(), o=ordemPilha(vi), cal=nosCal(vi), ep=vi.de[EP], t=soma(vals)||1;
+    const lin=g=>vals[g]>0? `<tr><td><i style="background:${vi.nos[g][1]}"></i>${esc(vi.nos[g][0])}</td><td>${fhaT(vals[g])}</td><td>${fp(vals[g]/t*100).replace('%','')}</td></tr>` : '';
+    const grupo=(tit,gs)=>{ const h=gs.map(lin).join(''); return h? `<tr class="grupo"><td colspan="3">${tit}</td></tr>`+h : ''; };
+    return `<div class="tabwrap tabDados tabClasses"><table>${titulo?`<caption>${titulo}</caption>`:''}<thead><tr><th>Categoria</th><th>Área (ha)</th><th>% da área no mapa</th></tr></thead><tbody>`+
+      grupo('Uso',o.uso)+grupo(nomeGrupoVeg(),o.resto.filter(g=>!cal.has(g)&&g!==ep))+grupo(`Calendário e datas`,[...cal])+grupo('Pelo PRODES',[ep])+'</tbody></table></div>'; }
   const vi=V(), veg=nosVeg(vi), t=vals? soma(vals) : 0, epN=vi.de[EP], cal=nosCal(vi), idx=[...vi.nos.keys()].filter(i=>i!==epN&&!cal.has(i));
   const item=i=>{ if(vals&&!(vals[i]>0)) return ''; const n=vi.nos[i]; return `<span><i style="background:${n[1]}"></i>${esc(n[0])}${vals?`<b>${fp(vals[i]/t*100)}</b>`:''}</span>`; };
   const temEP= vals? vals[epN]>0 : true, calV=[...cal].filter(i=>!vals||vals[i]>0);
@@ -1343,15 +1416,37 @@ function legendaHTML(vals,titulo){
 // MapBiomas ainda mostra como vegetação, o calendário e o PRODES; uma linha escura separa os dois.
 function ordemPilha(vi){ const veg=nosVeg(vi), cal=nosCal(vi), ep=vi.de[EP], ad=vi.de[AD], k=[...vi.nos.keys()];
   return {uso:k.filter(i=>!veg.has(i)&&!cal.has(i)&&i!==ep), resto:[...k.filter(i=>veg.has(i)&&!cal.has(i)&&i!==ep).reverse(),...[...cal].filter(i=>i!==ad),ad,ep]}; }
-function pilha(v,escala,xc,bw,yb,tip,extra){ const vi=V(), o=ordemPilha(vi); let s='', y=yb;
+function pilha(v,escala,xc,bw,yb,tip,extra,tot){ const vi=V(), o=ordemPilha(vi); let s='', y=yb; const rot=[];
   const barra=g=>{ const val=v[g]; if(!(val>0)) return; const h=val*escala; y-=h;
-    s+=`<rect${extra||''} x="${f1(xc-bw/2)}" y="${f1(y)}" width="${f1(bw)}" height="${f1(h)}" fill="${vi.nos[g][1]}" data-t="${esc(tip(g,val))}"/>`; };
+    s+=`<rect${extra||''} x="${f1(xc-bw/2)}" y="${f1(y)}" width="${f1(bw)}" height="${f1(h)}" fill="${vi.nos[g][1]}" data-t="${esc(tip(g,val))}"/>`;
+    // o % dentro da parte, como no explorador (só onde cabe)
+    if(tot&&h>=13&&bw>=24){ const p=val/tot*100; if(p>=0.5) rot.push(`<text${extra||''} x="${f1(xc)}" y="${f1(y+h/2+3.5)}" text-anchor="middle" font-size="10" font-weight="600" style="fill:${corTexto(vi.nos[g][1])};pointer-events:none">${p<1?'<1':Math.round(p)}%</text>`); } };
   o.uso.forEach(barra); const yUso=y; o.resto.forEach(barra);
   if(yUso<yb&&y<yUso-0.5) s+=`<line${extra||''} x1="${f1(xc-bw/2-3)}" x2="${f1(xc+bw/2+3)}" y1="${f1(yUso)}" y2="${f1(yUso)}" stroke="var(--tinta)" stroke-width="1.6"/>`;
-  return {s,y}; }
+  return {s:s+rot.join(''),y}; }
+// cor do texto sobre a cor da parte (claro sobre escuro, escuro sobre claro)
+function corTexto(hex){ const m=/^#([0-9a-f]{6})$/i.exec(hex||''); if(!m) return 'var(--tinta)'; const n=parseInt(m[1],16);
+  return (0.299*(n>>16)+0.587*((n>>8)&255)+0.114*(n&255))>150? '#1d2b26' : '#ffffff'; }
+// Legenda numa linha, em cima do gráfico, na ordem da pilha (de baixo para cima): uso, vegetação no MapBiomas,
+// calendário e PRODES. vals (por nó) mostra só as cores presentes.
+const nomeGrupoVeg=()=>S.vista==='historia'||S.vista==='simples'?'Vegetação nativa segundo o MapBiomas':'Vegetação nativa';
+function legLinha(vals){ const vi=V(), o=ordemPilha(vi), cal=nosCal(vi), ep=vi.de[EP], tem=g=>!vals||vals[g]>0;
+  const it=g=>`<span class="lg"><i style="background:${vi.nos[g][1]}"></i>${esc(vi.nos[g][0])}</span>`, grupo=(tit,gs)=>gs.length? `<span class="lt">${tit}</span>`+gs.map(it).join('') : '';
+  return grupo('Uso',o.uso.filter(tem))+grupo(nomeGrupoVeg(),o.resto.filter(g=>tem(g)&&!cal.has(g)&&g!==ep))+grupo('Calendário e datas',[...cal].filter(tem))+grupo('Pelo PRODES',[ep].filter(tem)); }
+// Os números do gráfico numa tabela, como no explorador: uma linha por barra, a área e, em % dessa área, cada
+// classe (só as que aparecem). o = {cap, rot, area, extra:[títulos], linhas:[{rot, extra:[...], a, v, sep}]}
+const faixaLista=a=>{ const s=[...a].sort(); return s.length>2&&s.every((x,i)=>!i||x-s[i-1]===1)? `${s[0]}–${s[s.length-1]}` : s.join(', '); };
+function tabelaBarras(o){ const vi=V(), ord=ordemPilha(vi);
+  const cols=[...ord.uso,...ord.resto].filter(g=>o.linhas.some(l=>{ const t=soma(l.v); return t&&l.v[g]/t>=5e-5; }));
+  const pc=x=>!(x>0)? '<td class="z">—</td>' : `<td>${x<0.1? nf3.format(x) : x<1? nf2.format(x) : nf1.format(x)}</td>`;
+  return `<div class="tabwrap tabDados"><table><caption>${o.cap}</caption><thead><tr><th>${esc(o.rot)}</th>${(o.extra||[]).map(e=>`<th>${esc(e)}</th>`).join('')}<th>${esc(o.area)}</th>`+
+    cols.map(g=>`<th><i style="background:${vi.nos[g][1]}"></i>${esc(vi.nos[g][0])}</th>`).join('')+'</tr></thead><tbody>'+
+    o.linhas.map(l=>{ const t=soma(l.v); return `<tr${l.sep?' class="sep"':''}><td>${esc(l.rot)}</td>${(l.extra||[]).map(e=>`<td>${esc(e)}</td>`).join('')}<td>${(l.a!=null?l.a:t)? fhaT(l.a!=null?l.a:t) : '—'}</td>`+
+      cols.map(g=>t? pc(l.v[g]/t*100) : '<td class="z">—</td>').join('')+'</tr>'; }).join('')+'</tbody></table></div>'; }
 function marcaMesmos(cs){ const m=mesmaIdade(cs), seg=$('segMesmos'); seg.hidden=cs.length<2;
   if(m) $('btMesmos').textContent=`só ${faixaAnos(m.cs).replace(' a ','–')}, até ${m.H} anos depois`;
   seg.querySelectorAll('[data-mesmos]').forEach(b=>b.setAttribute('aria-pressed',(b.dataset.mesmos==='1')===!!S.mesmos)); }
+$('segADg').onclick=e=>{ const b=e.target.closest('[data-adg]'); if(!b||b.dataset.adg===S.adGraf) return; S.adGraf=b.dataset.adg; pararAnim(); antesDepois(window.__ctx); };
 $('segMesmos').onclick=e=>{ const b=e.target.closest('[data-mesmos]'); if(!b) return; S.mesmos=b.dataset.mesmos==='1'; pararAnim(); antesDepois(window.__ctx); };
 
 // ---------------------------------------------------------------- antes e depois
@@ -1360,36 +1455,52 @@ function antesDepois(ctx){
   // cada ano de desmatamento no seu ano do MapBiomas. Começa no PRODES (100% vegetação nativa até a supressão);
   // os mapas do MapBiomas de antes do desmatamento ficam num botão. "Os mesmos em todas as barras" usa só os
   // anos de desmatamento acompanhados até 5 anos depois, para a diferença entre as barras ser só o tempo.
-  const cs0=coortes(ctx.ids), m=S.mesmos&&cs0.length>1? mesmaIdade(cs0) : null, antes=S.antes&&!m;
+  // Em linhas: uma por classe, de "no ano do desmatamento" em diante (o "Gráfico B" do operacional).
+  const cs0=coortes(ctx.ids), m=S.mesmos&&cs0.length>1? mesmaIdade(cs0) : null, linhasG=S.adGraf==='linhas', antes=S.antes&&!m&&!linhasG;
   const ids=m? ctx.ids.filter(i=>m.cs.includes(coorteDe(i))) : ctx.ids, csAD=coortes(ids);
   const K0=m?1:antes?-3:-1, nk=m?m.H:antes?13:11, comp=Array.from({length:nk},()=>new Float64Array(NE)), anosK=Array.from({length:nk},()=>new Set());
-  marcaMesmos(cs0); const bA=$('gAD').closest('.painel').querySelector('.btnAntes'); if(bA) bA.hidden=!!m;
+  marcaMesmos(cs0); const bA=$('gAD').closest('.painel').querySelector('.btnAntes'); if(bA) bA.hidden=!!m||linhasG;
+  document.querySelectorAll('#segADg [data-adg]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.adg===S.adGraf)); $('animAD').hidden=linhasG;
   const add=(a,j,e,v)=>{ const r=D.anos_mb[j]-a-K0; if(r<0||r>=nk) return; comp[r][e]+=v; anosK[r].add(a); };
   for(const i of ids){ const a=coorteDe(i);
     if(S.seguir){ const x=D.tj[i]; for(let q=0;q<x.length;q+=2){ if(!casa(x[q])) continue; for(let j=0;j<NA;j++) add(a,j,x[q].charCodeAt(j)-97,x[q+1]); } }
     else { for(let j=0;j<NA;j++){ const r=D.anos_mb[j]-a-K0; if(r<0||r>=nk) continue; (antes? somaCompyMB : somaCompy)(comp[r],i,j); anosK[r].add(a); } } }
   const ks=[]; for(let r=0;r<nk;r++) if(soma(comp[r])>0) ks.push(r);
-  if(!ks.length){ $('gAD').innerHTML='<div class="vazio">Nenhuma área no recorte.</div>'; $('adSub').innerHTML=''; return; }
-  const off=antes?0:1, nb=ks.length+off;
-  const vi=V(), W=Math.max(GW,120+56*nb), H=314, L=44, TOP=30, BOT=48, bw=Math.min(52,(W-L-20)/nb*0.72), xs=i=>L+(i+off+0.5)*(W-L-20)/nb;
+  if(!ks.length){ $('gAD').innerHTML='<div class="vazio">Nenhuma área no recorte.</div>'; $('adSub').innerHTML=''; $('legAD').innerHTML=''; $('tabAD').innerHTML=''; return; }
+  const vi=V(), cols=ks.map(r=>({r, k:r+K0, rot:tK(r+K0,csAD), v:paraNos(comp[r]), anos:[...anosK[r]]}));
+  const aA=new Map(); for(const i of ids){ const A=coorteDe(i); aA.set(A,(aA.get(A)||0)+D.ca[i]); }
+  const areaCol=c=>S.seguir? null : soma(c.anos.map(A=>aA.get(A)||0));
+  const tot=new Float64Array(vi.nos.length); cols.forEach(c=>c.v.forEach((x,i)=>tot[i]+=x)); $('legAD').innerHTML=legLinha(tot);
+  const um=csAD.length===1, varios=!um&&!m;
+  $('tabAD').innerHTML=tabelaBarras({cap: m? `Números do gráfico: o desmatamento de ${faixaAnos(m.cs)} e, em % dessa área, o que ela era em cada ano depois do desmatamento.` :
+      `Números do gráfico: em cada linha, a área desmatada que tem aquele ano no MapBiomas e, em % dessa área, o que ela era.`,
+    rot: um? 'Ano do MapBiomas' : 'Anos depois do desmatamento', extra: varios? ['Anos de desmatamento'] : [], area:'Área desmatada (ha)',
+    linhas: cols.map(c=>({rot:c.rot, extra: varios? [faixaLista(c.anos)] : [], a:areaCol(c), v:c.v}))});
+  const sub0= m? `Os mesmos anos de desmatamento em todas as barras: <b>${faixaAnos(m.cs)}</b> (<b>${fha(areaDe(ids))}</b>), cada ano no seu MapBiomas. Como a área é a mesma, a diferença entre as barras é o que mudou com o tempo.` :
+    um? `Cada barra é 100% do desmatamento de ${csAD[0]} (<b>${fha(areaDe(ids))}</b>), no MapBiomas de cada ano.` :
+      `Cada barra é 100% da área desmatada, lida tantos anos depois do desmatamento: o de 2016 no MapBiomas 2017 (1 ano depois), o de 2020 no de 2021. Quanto mais longe do desmatamento, menos anos de desmatamento entram`+((c1,cl)=>c1&&cl!==c1? `: ${c1.anos.length} em "${c1.rot}", ${cl.anos.length===1? 'só o de '+cl.anos[0] : cl.anos.length} em "${cl.rot}".` : '.')(cols.find(c=>c.k===1),cols[cols.length-1]);
+  if(linhasG){
+    const cl=cols.filter(c=>c.k>=0), series=[...ordemPilha(vi).uso,...ordemPilha(vi).resto].map(g=>({nome:vi.nos[g][0],cor:vi.nos[g][1],ys:cl.map(c=>c.v[g]/soma(c.v)*100)})).filter(x=>x.ys.some(y=>y>=0.5));
+    $('gAD').innerHTML=cl.length>1? linhas(cl.map(c=>c.rot),series,'% da área desmatada de cada coluna').replace('id="gSvg"','id="adSvg"') : '<div class="vazio">Só há um ano do MapBiomas depois deste desmatamento.</div>';
+    $('adSub').innerHTML=sub0+' Cada linha é uma classe, em % da área desmatada de cada coluna.'; return; }
+  const off=antes?0:1, nb=cols.length+off;
+  const W=Math.max(GW,120+56*nb), H=314, L=44, TOP=30, BOT=48, bw=Math.min(52,(W-L-20)/nb*0.72), xs=i=>L+(i+off+0.5)*(W-L-20)/nb;
   let s='';
   ANIM.lim.ad={min:0,max:nb-1}; const mostra=i=>ANIM.ad==null||i<=ANIM.ad, novoAD=i=>ANIM.ad===i;
+  for(const p of [0,25,50,75,100]){ const y=TOP+(H-TOP-BOT)*(1-p/100); s+=`<line x1="${L}" x2="${W-20}" y1="${y}" y2="${y}" stroke="var(--linha)"/><text x="${L-6}" y="${y+4}" text-anchor="end" font-size="10.5" class="s">${p}%</text>`; }
   if(off){ const x0=L+0.5*(W-L-20)/nb;
     s+=`<rect${novoAD(0)?' class="cresce"':''} x="${f1(x0-bw/2)}" y="${TOP}" width="${f1(bw)}" height="${H-TOP-BOT}" fill="${COR_EP}" data-t="${esc('<b>PRODES</b><br>Pelo PRODES, toda esta área era vegetação nativa até o ano do desmatamento (o PRODES só marca supressão de vegetação nativa).')}"/>`+
-       `<text x="${f1(x0)}" y="${H-BOT+16}" text-anchor="middle" font-size="11.5" font-weight="600">PRODES</text><text x="${f1(x0)}" y="${TOP-8}" text-anchor="middle" font-size="10" class="s">100% nativa</text>`; }
-  for(const p of [0,25,50,75,100]){ const y=TOP+(H-TOP-BOT)*(1-p/100); s+=`<line x1="${L}" x2="${W-20}" y1="${y}" y2="${y}" stroke="var(--linha)"/><text x="${L-6}" y="${y+4}" text-anchor="end" font-size="10.5" class="s">${p}%</text>`; }
-  ks.forEach((r,i)=>{ const v=paraNos(comp[r]), t=soma(v), k=r+K0, ib=i+off;
+       `<text x="${f1(x0)}" y="${f1((TOP+H-BOT)/2+3.5)}" text-anchor="middle" font-size="10" font-weight="600" style="fill:#ffffff;pointer-events:none">100%</text>`+
+       `<text x="${f1(x0)}" y="${H-BOT+16}" text-anchor="middle" font-size="11.5" font-weight="600">PRODES</text>`; }
+  cols.forEach((c,i)=>{ const t=soma(c.v), k=c.k, ib=i+off;
     const quando=k>0?k+' ano'+(k>1?'s':'')+' depois':k===0?'no ano do desmatamento':(-k)+' ano'+(k<-1?'s':'')+' antes'+(antes?' — o que o MapBiomas via; pelo PRODES, era vegetação nativa':'');
-    if(mostra(ib)) s+=pilha(v,(H-TOP-BOT)/t,xs(i),bw,H-BOT,(g,val)=>`<b>${esc(vi.nos[g][0])}</b>, ${quando}<br>${fp(val/t*100)} · ${fha(val)}<br>anos de desmatamento: ${[...anosK[r]].sort().join(', ')}`,
-      (novoAD(ib)?' class="cresce"':'')+(k<0&&antes?' opacity=".5"':'')).s;
+    if(mostra(ib)) s+=pilha(c.v,(H-TOP-BOT)/t,xs(i),bw,H-BOT,(g,val)=>`<b>${esc(vi.nos[g][0])}</b>, ${quando}<br>${fp(val/t*100)} · ${fha(val)}<br>anos de desmatamento: ${faixaLista(c.anos)}`,
+      (novoAD(ib)?' class="cresce"':'')+(k<0&&antes?' opacity=".5"':''),t).s;
     if(S.lente==='n'&&k===S.N) s+=`<rect x="${f1(xs(i)-bw/2-3)}" y="${TOP-3}" width="${f1(bw+6)}" height="${H-TOP-BOT+6}" fill="none" stroke="var(--tinta)" stroke-width="1.5" stroke-dasharray="4 3" rx="3"/>`;
-    s+=`<text x="${f1(xs(i))}" y="${H-BOT+16}" text-anchor="middle" font-size="11.5" font-weight="600">${tspans(quebra(tK(k,csAD),11.5,Math.max(48,(W-L-20)/nb-6),'600'),xs(i),12)}</text><text x="${f1(xs(i))}" y="${TOP-8}" text-anchor="middle" font-size="10" class="s">${k<0&&antes? 'MapBiomas' : csAD.length>1&&!m? anosK[r].size+' ano'+(anosK[r].size>1?'s':'') : ''}</text>`; });
-  s+=`<text x="${L}" y="${H-3}" font-size="10.5" class="s">${m? `Desmatamento de ${faixaAnos(m.cs)} em todas as barras (${fha(areaDe(ids))}). Abaixo da linha escura, o uso; acima, a vegetação no MapBiomas` : antes?'Barras apagadas: o que o MapBiomas via antes do desmatamento — pelo PRODES, ainda era vegetação nativa (a divergência)':'PRODES = vegetação nativa até o desmatamento. Abaixo da linha escura, o uso; acima, a vegetação no MapBiomas e o calendário'}</text>`;
-  const um=csAD.length===1;
-  $('adSub').innerHTML= m? `Os mesmos anos de desmatamento em todas as barras: <b>${faixaAnos(m.cs)}</b> (<b>${fha(areaDe(ids))}</b>), do PRODES a ${m.H} anos depois, cada ano no seu MapBiomas. Como a área é a mesma, a diferença entre as barras é o que mudou com o tempo.` :
-    (um? `Cada barra é 100% do desmatamento de ${csAD[0]} (<b>${fha(areaDe(ids))}</b>), no MapBiomas de cada ano.` :
-      `Cada barra é 100% da área desmatada, lida tantos anos depois do desmatamento: o de 2016 no MapBiomas 2017 (1 ano depois), o de 2020 no de 2021. Acima de cada barra, quantos anos de desmatamento entram nela — quanto mais longe do desmatamento, menos anos, e mais antigos.`)+
-    (m? '' : ` A primeira é o PRODES (vegetação nativa até o desmatamento)`+(ks.includes(-1-K0)? `; em "${tK(-1,csAD)}", o verde-água é o MapBiomas adiantado (o ano PRODES começa em agosto do ano anterior)` : '')+'.')+
+    s+=`<text x="${f1(xs(i))}" y="${H-BOT+16}" text-anchor="middle" font-size="11.5" font-weight="600">${tspans(quebra(c.rot,11.5,Math.max(48,(W-L-20)/nb-6),'600'),xs(i),12)}</text>`+
+      (varios||k<0&&antes? `<text x="${f1(xs(i))}" y="${TOP-8}" text-anchor="middle" font-size="10" class="s">${k<0&&antes? 'MapBiomas' : c.anos.length+' ano'+(c.anos.length>1?'s':'')}</text>` : ''); });
+  s+=`<text x="${L}" y="${H-3}" font-size="10.5" class="s">${antes?'Barras apagadas: o que o MapBiomas via antes do desmatamento — pelo PRODES, ainda era vegetação nativa (a divergência)':'Abaixo da linha escura, o uso; acima, a vegetação no MapBiomas'+(varios?'. Acima de cada barra, quantos anos de desmatamento entram nela':'')}</text>`;
+  $('adSub').innerHTML=sub0+(m? '' : ` A primeira é o PRODES (vegetação nativa até o desmatamento)`+(cols.some(c=>c.k===-1)? `; em "${tK(-1,csAD)}", o verde-água é o MapBiomas adiantado (o ano PRODES começa em agosto do ano anterior)` : '')+'.')+
     (S.lente==='n'? ` O tracejado marca ${tK(S.N,csAD)}, o mapa dos números do recorte.` : '')+
     (antes?' <b>Mostrando também os 3 anos antes do desmatamento</b> (barras apagadas): é o que o MapBiomas via quando, pelo PRODES, a área ainda era vegetação nativa. Parte disso é o calendário; o resto é divergência entre os mapas.':'');
   $('gAD').innerHTML=`<svg id="adSvg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="O que virou, ano a ano depois do desmatamento">${s}</svg>`;
@@ -1401,23 +1512,27 @@ function antesDepois(ctx){
 function porAno(ctx){
   const g=[...agrupa(ctx.ids,'ano')].map(([a,is])=>({A:+a,is})).sort((a,b)=>a.A-b.A), sec=$('gPorAno').closest('.painel');
   sec.hidden=g.length<2; if(sec.hidden) return;
-  const vi=V(), cols=g.map(x=>({A:x.A, v:paraNos(compLente(x.is).vE)})), tot=new Float64Array(vi.nos.length);
+  const vi=V(), cols=g.map(x=>({A:x.A, a:S.seguir? null : areaDe(x.is), v:paraNos(compLente(x.is).vE)})), tot=new Float64Array(vi.nos.length);
   cols.forEach(c=>c.v.forEach((x,i)=>tot[i]+=x));
-  const n=cols.length, W=Math.max(360,GW-32), H=300, L=44, TOP=26, BOT=40, bw=Math.min(56,(W-L-20)/n*0.7), xs=i=>L+(i+0.5)*(W-L-20)/n;
-  const cal=S.lente==='cal', mb=A=>cal? D.anos_mb[S.ano] : A+S.N;
+  const n=cols.length, W=Math.max(360,GW-32), H=316, L=44, TOP=26, BOT=56, bw=Math.min(56,(W-L-20)/n*0.7), xs=i=>L+(i+0.5)*(W-L-20)/n;
+  const cal=S.lente==='cal', mb=A=>cal? D.anos_mb[S.ano] : A+S.N, depois=S.N? `${S.N} ano${S.N>1?'s':''} depois` : 'no próprio ano';
   let s='';
   for(const p of [0,25,50,75,100]){ const y=TOP+(H-TOP-BOT)*(1-p/100); s+=`<line x1="${L}" x2="${W-20}" y1="${y}" y2="${y}" stroke="var(--linha)"/><text x="${L-6}" y="${y+4}" text-anchor="end" font-size="10.5" class="s">${p}%</text>`; }
-  cols.forEach((c,i)=>{ const t=soma(c.v);
+  cols.forEach((c,i)=>{ const t=soma(c.v), aT=c.a!=null? c.a : t;
     s+=`<text x="${f1(xs(i))}" y="${H-BOT+16}" text-anchor="middle" font-size="11.5" font-weight="600">${c.A}</text>`;
     if(!cal) s+=`<text x="${f1(xs(i))}" y="${H-BOT+30}" text-anchor="middle" font-size="10" class="s">${mb(c.A)}</text>`;
+    if(aT) s+=`<text x="${f1(xs(i))}" y="${TOP-8}" text-anchor="middle" font-size="10.5" font-weight="600">${fhaC(aT)}</text>`;
     if(!t){ s+=`<text x="${f1(xs(i))}" y="${f1((TOP+H-BOT)/2)}" text-anchor="middle" font-size="10" class="s">${tspans(['sem','MapBiomas',String(mb(c.A))],xs(i),12)}</text>`; return; }
-    s+=pilha(c.v,(H-TOP-BOT)/t,xs(i),bw,H-BOT,(g_,val)=>`<b>${esc(vi.nos[g_][0])}</b><br>desmatamento de ${c.A}, no MapBiomas ${mb(c.A)}<br>${fp(val/t*100)} · ${fha(val)}`).s; });
-  s+=`<text x="${L}" y="${TOP-10}" font-size="10.5" class="s">${cal? `Todas no MapBiomas ${D.anos_mb[S.ano]}` : 'Embaixo de cada barra: o ano do desmatamento (PRODES) e o ano do MapBiomas'}</text>`;
-  $('porAnoTit').textContent= cal? `O que cada ano de desmatamento era em ${D.anos_mb[S.ano]}` : S.N? `O que cada ano de desmatamento virou ${S.N} ano${S.N>1?'s':''} depois` : 'O que cada ano de desmatamento era no próprio ano';
+    s+=pilha(c.v,(H-TOP-BOT)/t,xs(i),bw,H-BOT,(g_,val)=>`<b>${esc(vi.nos[g_][0])}</b><br>desmatamento de ${c.A}, no MapBiomas ${mb(c.A)}<br>${fp(val/t*100)} · ${fha(val)}`,'',t).s; });
+  s+=`<text x="${L}" y="${H-4}" font-size="10.5" class="s">${cal? `Embaixo: o ano do desmatamento (PRODES), todos no MapBiomas ${D.anos_mb[S.ano]}` : 'Embaixo de cada barra: o ano do desmatamento (PRODES) e, menor, o ano do MapBiomas'}. Em cima: a área desmatada no ano</text>`;
+  $('porAnoTit').textContent= cal? `O que cada ano de desmatamento era em ${D.anos_mb[S.ano]}` : S.N? `O que cada ano de desmatamento virou ${depois}` : 'O que cada ano de desmatamento era no próprio ano';
   const vazios=cols.filter(c=>!soma(c.v)).map(c=>c.A);
-  $('porAnoSub').innerHTML=`Cada barra é 100% do desmatamento de um ano, ${cal? `no MapBiomas ${D.anos_mb[S.ano]} (os anos depois de ${D.anos_mb[S.ano]} ainda não tinham sido desmatados)` : `lido ${S.N? S.N+' ano'+(S.N>1?'s':'')+' depois' : 'no próprio ano'}, cada um no seu MapBiomas`}.`+
+  $('porAnoSub').innerHTML=`Cada barra é 100% do desmatamento de um ano, ${cal? `no MapBiomas ${D.anos_mb[S.ano]} (os anos depois de ${D.anos_mb[S.ano]} ainda não tinham sido desmatados)` : `lido ${depois}, cada um no seu MapBiomas`}: mostra se o destino logo depois do desmatamento mudou de um ano para outro.`+
     (vazios.length? ` ${vazios.join(', ')}: ainda sem o MapBiomas desse ano (vai até 2025).` : '');
-  $('legPorAno').innerHTML=legendaHTML(tot,`Todos os anos juntos, ${rotLente()}: ${fha(soma(tot))}`);
+  $('legPA').innerHTML=legLinha(tot);
+  $('tabPA').innerHTML=tabelaBarras({cap:`Números do gráfico: a área desmatada de cada ano (PRODES) e, em % dessa área, o que ela ${cal? `era em ${D.anos_mb[S.ano]}` : `virou ${depois}`}.`,
+    rot:'Ano do desmatamento', extra: cal? [] : ['Ano do MapBiomas'], area:'Área desmatada (ha)',
+    linhas:[...cols.map(c=>({rot:String(c.A), extra: cal? [] : [String(mb(c.A))], a:c.a, v:c.v})), {rot:'Todos', extra: cal? [] : [''], a: S.seguir? null : areaDe(ctx.ids), v:tot, sep:true}]});
   $('gPorAno').innerHTML=`<svg id="paSvg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img" aria-label="O que cada ano de desmatamento virou">${s}</svg>`;
 }
 
@@ -1595,7 +1710,7 @@ function paraURL(){
   p.set('modo',S.modo); p.set('def',S.def); p.set('v',S.vista); p.set('g',S.graf); p.set('ano',D.anos_mb[S.ano]); p.set('l',S.lente); p.set('n',S.N); p.set('m',S.mNo);
   if(S.val!=='ha') p.set('val',S.val); p.set('col',S.col); if(S.eixos.length) p.set('e',S.eixos.join(','));
   if(S.linhaNo!=null) p.set('ln',S.linhaNo); if(S.seguir) p.set('s',`${S.seguir.vista}:${S.seguir.j}:${S.seguir.no}`);
-  if(S.ord[0]!=='area'||S.ord[1]!==-1) p.set('o',S.ord.join(':')); if(S.antes) p.set('antes','1'); if(S.matCol!=='cal') p.set('mc',S.matCol); if(S.aba!=='virou') p.set('aba',S.aba); if(S.mesmos) p.set('mi','1');
+  if(S.ord[0]!=='area'||S.ord[1]!==-1) p.set('o',S.ord.join(':')); if(S.antes) p.set('antes','1'); if(S.matCol!=='cal') p.set('mc',S.matCol); if(S.aba!=='virou') p.set('aba',S.aba); if(S.mesmos) p.set('mi','1'); if(S.adGraf!=='barras') p.set('adg',S.adGraf); if(S.orig!=='pasto') p.set('or',S.orig);
   return location.origin+location.pathname+'?'+p.toString();
 }
 function deURL(){
@@ -1609,7 +1724,7 @@ function deURL(){
   const an=D.anos_mb.indexOf(+p.get('ano')); if(an>=0) S.ano=an;
   if(p.get('val')==='pct') S.val='pct'; if(['cal','rel','lag'].includes(p.get('col'))) S.col=p.get('col');
   if(['n','cal'].includes(p.get('l'))) S.lente=p.get('l'); if(p.get('n')!=null&&p.get('n')!=='') S.N=Math.max(0,Math.min(8,+p.get('n')||0));
-  if(MAT_OP.some(o=>o[0]===p.get('m'))) S.mNo=p.get('m'); if(p.get('antes')==='1') S.antes=true; if(p.get('mc')==='rel') S.matCol='rel'; if(p.get('aba')) S.aba=p.get('aba'); if(p.get('mi')==='1') S.mesmos=true;
+  if(MAT_OP.some(o=>o[0]===p.get('m'))) S.mNo=p.get('m'); if(p.get('antes')==='1') S.antes=true; if(p.get('mc')==='rel') S.matCol='rel'; if(p.get('aba')) S.aba=p.get('aba'); if(p.get('mi')==='1') S.mesmos=true; if(p.get('adg')==='linhas') S.adGraf='linhas'; if(['agri','mos'].includes(p.get('or'))) S.orig=p.get('or');
   if(p.get('e')) S.eixos=p.get('e').split(',').filter(d=>DN[d]).slice(0,2);
   if(p.get('ln')!=null&&p.get('ln')!=='') S.linhaNo=+p.get('ln');
   if(p.get('s')){ const [v,j,no]=p.get('s').split(':'); if(D.vistas[v]) S.seguir={vista:v,j:+j,no:+no}; }
@@ -1690,6 +1805,7 @@ const INFO={
   col:['<b>Do desmatamento em diante</b>: a coluna do PRODES (vegetação nativa até o desmatamento) e depois o MapBiomas a partir do ano escolhido em "uso da terra no MapBiomas", acima dos números. Nas linhas e barras, cada coluna junta os anos de desmatamento que já têm aquele ano no MapBiomas; no Sankey, com vários anos juntos, só cabe o PRODES e o ano escolhido. <b>Antes e depois do desmatamento</b>: os anos do MapBiomas alinhados pelo ano do desmatamento; antes dele, pelo PRODES, vegetação nativa. <b>Por ano do MapBiomas</b>: as colunas são 2017 a 2025; com vários anos de desmatamento juntos, a área que ainda vai ser desmatada aparece como "vegetação nativa antes do desmatamento (PRODES)".','Colunas'],
   ad:['Cada barra é a área desmatada lida N anos depois do desmatamento, cada ano de desmatamento no seu MapBiomas (2017-2025). Com todos os anos, cada barra junta os que têm aquele ano no MapBiomas: quanto mais longe do desmatamento, menos anos e mais antigos. "Só 2016–2020" usa os mesmos anos em todas as barras (os que já têm 5 anos de MapBiomas), para a diferença entre as barras ser só o tempo. Com um ano de desmatamento só, os rótulos são os próprios anos do MapBiomas.','O que virou, ano a ano depois do desmatamento'],
   porAno:['Cada barra é um ano de desmatamento do PRODES, lido no mapa escolhido em "2. Uso da terra no MapBiomas" (padrão: 1 ano depois, cada ano no seu MapBiomas). Mostra se o destino logo depois do desmatamento mudou de um ano para outro. Os anos que ainda não têm esse mapa (o MapBiomas 10 m vai até 2025) ficam vazios.','Por ano do desmatamento'],
+  orig:['A variação de um uso na área desmatada de um ano do MapBiomas para o seguinte, pelas transições de cada pixel: <b>desmatamento novo</b> é a área que o PRODES desmatou e já aparece com esse uso (inclui a folga de datas e o MapBiomas adiantado); <b>uso que o MapBiomas mostrou com atraso</b> é a que ele ainda mostrava como vegetação 2+ anos depois do desmatamento; <b>de outro uso ou de vegetação de novo</b> é troca de uso. Saiu: foi para outro uso ou voltou a aparecer como vegetação. Separa o crescimento do estoque (desmatamento novo) da troca de uso, como pediu o operacional.','De onde veio o aumento'],
   idades:['Os mesmos anos de desmatamento (os que já têm 5 anos de MapBiomas; com filtro de ano, o máximo que ele tem) em três momentos depois do desmatamento, cada um no seu ano do MapBiomas. Cada faixa é a área que passou de um uso para outro. Usa as trajetórias completas de cada ponto, embutidas na página; a cobertura aparece no texto.','Para onde foi cada uso'],
   tab:['Sem comparação: o recorte pelo uso. Com comparação: uma linha por categoria; clique em várias para somar (Σ) e filtrar por elas. As linhas marcadas acendem no gráfico, e clicar numa categoria do gráfico a marca aqui.','Tabela'],
   tj:['Cada quadradinho é um ano. Clique em "mostrar mais" para descer na lista.','Trajetórias'],
@@ -1965,7 +2081,7 @@ function mostraAba(a){
   document.querySelectorAll('.aba').forEach(el=>el.hidden=el.dataset.aba!==a);
   document.querySelectorAll('#abas [data-aba]').forEach(b=>b.setAttribute('aria-selected',b.dataset.aba===a));
   const c=window.__ctx; if(!c) return;
-  if(a==='virou'){ antesDepois(c); porAno(c); idades(c); acumulado(c); matriz(c); } else if(a==='tempo') grafico(c); else if(a==='diverge') diverge(c);
+  if(a==='virou'){ antesDepois(c); porAno(c); idades(c); acumulado(c); origens(c); matriz(c); } else if(a==='tempo') grafico(c); else if(a==='diverge') diverge(c);
   else if(a==='mapa'){ if(M.mapa){ M.mapa.resize(); repintaMapa(); } else iniciaMapa(); }
 }
 $('abas').onclick=e=>{ const b=e.target.closest('[data-aba]'); if(b) mostraAba(b.dataset.aba); };
@@ -1988,10 +2104,10 @@ function tudo(){
   pararAnim();
   pintaFiltros(); pintaFichas(); pintaEixos(); marca();
   const ctx=estadoAtual(); window.__ctx=ctx;
-  frase(ctx); kpis(ctx); perguntas(ctx); porAno(ctx); idades(ctx); acumulado(ctx); diverge(ctx); grafico(ctx); antesDepois(ctx); matriz(ctx); tabela(ctx); trajetorias(ctx); classes(ctx); repintaMapa();
+  frase(ctx); kpis(ctx); perguntas(ctx); porAno(ctx); idades(ctx); acumulado(ctx); origens(ctx); diverge(ctx); grafico(ctx); antesDepois(ctx); matriz(ctx); tabela(ctx); trajetorias(ctx); classes(ctx); repintaMapa();
   $('segNota').textContent= S.seguir? `Seguindo ${nomeSeguir()}: trajetórias embutidas cobrem ${fp(ctx.cob*100)} dessa área.` : 'Ou clique num bloco do Sankey.';
 }
-let rz; addEventListener('resize',()=>{ clearTimeout(rz); rz=setTimeout(()=>{ mede(); grafico(window.__ctx); antesDepois(window.__ctx); porAno(window.__ctx); idades(window.__ctx); acumulado(window.__ctx); },150); });
+let rz; addEventListener('resize',()=>{ clearTimeout(rz); rz=setTimeout(()=>{ mede(); grafico(window.__ctx); antesDepois(window.__ctx); porAno(window.__ctx); idades(window.__ctx); acumulado(window.__ctx); origens(window.__ctx); },150); });
 $('avisoTeste').hidden=!D.teste;
 deURL();   // abre com todos os anos (2016-2024); um ano se escolhe nos filtros ou nos seletores
 montaFiltros(); aplicaModo(S.modo); montaSeguir(); sobre(); tudo(); mostraAba(S.aba);
@@ -2026,6 +2142,9 @@ if(location.search.includes('validar')){
   { limpa(); S.f.ano.set('2018',1); S.f.ano.set('2019',1); S.f.ano.set('2020',1); const R=transicoesRel(selecao()); const t=[]; for(let c=0;c<=R.n;c++) t.push(soma(compRel(R,c)));
     let ent=0; for(const i of selecao()) ent+=D.tr[i].length/2;
     ok('Sankey alinhado conserva área',Math.max(...t)-Math.min(...t)<=Math.max(2,0.5*ent/NP*2),`colunas ${R.kmin} a ${R.kmax}`); }
+  // 8. de onde veio o aumento: o 1º ano + as variações = o último ano, para cada uso
+  { limpa(); const T=transicoes(selecao()); let ruins=0; for(const [,U] of Object.values(ORIG_USOS)){ const a=origemAnos(T,U), u0=somaEst(compE(T,0),U), uL=somaEst(compE(T,NA-1),U), s=u0+soma(a.map(x=>x.liq)); if(Math.abs(s-uL)>Math.max(2,1e-4*uL)) ruins++; }
+    ok('origem do aumento fecha com o último ano',!ruins,`${3-ruins}/3 usos`); }
   // 7. mesma idade: 1 ano depois, cada ano de desmatamento entra com a área toda
   { limpa(); let ruins=0; for(const A of D.anos_prodes){ S.f.ano.clear(); S.f.ano.set(String(A),1); const ids=selecao(), a=areaDe(ids), v=soma(compK(ids,1).vE); if(Math.abs(v-a)>Math.max(2,1e-4*a)) ruins++; }
     ok('1 ano depois cobre cada ano de desmatamento',!ruins,`${D.anos_prodes.length-ruins}/${D.anos_prodes.length}`); }

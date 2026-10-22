@@ -24,8 +24,12 @@ até a supressão. O MapBiomas é a lente do que veio depois.
   principal alinha cada ano de desmatamento pelos anos depois dele (o de 2016 no
   MapBiomas 2017, o de 2020 no de 2021), com a opção dos mesmos anos de desmatamento em
   todas as barras (2016-2020, até 5 anos depois); barras por ano do desmatamento; Sankey
-  1, 3 e 5 anos depois; "Ficou no mesmo uso?". O desmatamento acumulado vem depois, como
-  estoque: a barra cresce com o desmatamento novo.
+  1, 3 e 5 anos depois; "Ficou no mesmo uso?" (3 e 5 anos depois). O desmatamento acumulado
+  vem depois, como estoque, seguido de "De onde veio o aumento" (desmatamento novo × uso que o
+  MapBiomas mostrou com atraso × troca de uso), para pastagem, agricultura e mosaico.
+- **Legendas e números como no explorador:** cores numa linha em cima de cada gráfico, % dentro
+  de cada parte da barra e uma tabela embaixo com os números do gráfico (área do PRODES e, em %
+  dessa área, cada classe). O gráfico principal também em linhas.
 - **Topo como no explorador:** anos do desmatamento PRODES e o mapa do MapBiomas usado
   nos números; filtros em gavetas (Território, Trajetória) e "Filtros aplicados".
 - **Filtros de três estados** (+ precisa ter, − não pode ter) nas gavetas: bioma (PRODES
