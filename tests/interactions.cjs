@@ -77,3 +77,41 @@ test('Simplificado ao abrir; Detalhado pelo botão e pelos links antigos',async(
 test('Detalhado no celular sem rolagem lateral',async()=>{
  const p=await page('?modo=det',{width:390,height:844});assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);await p.close();
 });
+
+test('Foco: a tabela acende o gráfico e o gráfico acende a tabela',async()=>{
+ const p=await page('');
+ await p.locator('#tabPA tr[data-col="1"] td').first().click(); await p.waitForTimeout(400);
+ const op=await p.evaluate(()=>[document.querySelector('#gPorAno g[data-col="0"] rect[data-no]').style.opacity,document.querySelector('#gPorAno g[data-col="1"] rect[data-no]').style.opacity]);
+ assert.deepEqual(op,['0.16','']);
+ assert.match(await p.locator('#sel_gPorAno').innerText(),/Seleção no gráfico[\s\S]*2017/i);
+ await p.locator('#tabAD th[data-no]',{hasText:'Pastagem'}).click(); await p.waitForTimeout(400);
+ const no=await p.locator('#tabAD th[data-no]',{hasText:'Pastagem'}).getAttribute('data-no');
+ const acesas=await p.evaluate(n=>[...document.querySelectorAll('#gAD rect[data-no]')].filter(r=>r.style.opacity!=='0.16').every(r=>r.dataset.no===n),no);
+ assert.equal(acesas,true);
+ await p.locator('#gAcum g[data-col="8"] rect[data-no]').first().click(); await p.waitForTimeout(400);
+ assert.equal(await p.locator('#tabAC tr[data-col="8"]').getAttribute('class'),'marcada');
+ await p.close();
+});
+
+test('Foco: duplo clique filtra, Voltar desfaz; o Sankey segue a área',async()=>{
+ const p=await page('');
+ const pasto=await p.locator('#tabPA th[data-no]',{hasText:'Pastagem'}).getAttribute('data-no');
+ await p.locator(`#gPorAno g[data-col="3"] rect[data-no="${pasto}"]`).dblclick(); await p.waitForTimeout(500);
+ assert.deepEqual(await p.evaluate(()=>[[...S.f.ano.keys()],S.seguir.conds]),[['2019'],[{t:'k',v:1,nos:[+pasto]}]]);
+ assert.match(await p.locator('#fichas').innerText(),/Pastagem 1 ano depois do desmatamento/);
+ await p.locator('#voltaFoco').click(); await p.waitForTimeout(300);
+ assert.deepEqual(await p.evaluate(()=>[S.f.ano.size,S.seguir]),[0,null]);
+ await p.locator(`#gIdades rect[data-col="1"][data-no="${pasto}"]`).dblclick(); await p.waitForTimeout(500);
+ const c=await p.evaluate(()=>S.seguir.conds); assert.deepEqual(c,[{t:'k',v:3,nos:[+pasto]}]);
+ assert.match(await p.locator('#fichas').innerText(),/Pastagem 3 anos depois do desmatamento/);
+ await p.close();
+});
+
+test('Foco no link e link antigo do Seguir',async()=>{
+ const p=await page('?modo=simples&fc=gPorAno~2.');
+ assert.equal(await p.locator('#tabPA tr[data-col="2"]').getAttribute('class'),'marcada');
+ await p.close();
+ const v=await page('?s=historia:1:4');
+ assert.match(await v.locator('#fichas').innerText(),/Pastagem em 2018/);
+ await v.close();
+});

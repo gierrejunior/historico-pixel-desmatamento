@@ -27,6 +27,12 @@ até a supressão. O MapBiomas é a lente do que veio depois.
   1, 3 e 5 anos depois; "Ficou no mesmo uso?" (3 e 5 anos depois). O desmatamento acumulado
   vem depois, como estoque, seguido de "De onde veio o aumento" (desmatamento novo × uso que o
   MapBiomas mostrou com atraso × troca de uso), para pastagem, agricultura e mosaico.
+- **Modo foco, como no explorador:** clicar numa parte do gráfico, na legenda ou numa linha/coluna
+  da tabela destaca nos dois sentidos; o quadro "Seleção no gráfico" mostra área e % (e a soma do
+  que pode ser somado); "Aplicar seleção como filtro" ou duplo clique leva a página para ela (ano do
+  desmatamento → filtro de ano; uso num momento → "Seguir uma área", que aceita "N anos depois do
+  desmatamento", várias classes e as duas pontas de um fluxo do Sankey); "← Voltar" desfaz. O foco
+  entra no link.
 - **Legendas e números como no explorador:** cores numa linha em cima de cada gráfico, % dentro
   de cada parte da barra e uma tabela embaixo com os números do gráfico (área do PRODES e, em %
   dessa área, cada classe). O gráfico principal também em linhas.
