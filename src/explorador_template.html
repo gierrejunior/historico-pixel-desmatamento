@@ -1,6 +1,6 @@
 <!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Desmatamento PRODES: o que virou</title>
+<title>FGV Agro - O que o desmatamento virou</title>
 <link rel="icon" href="favicon.ico" sizes="32x32"><link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23175345'/%3E%3Crect x='11' y='34' width='11' height='20' rx='2' fill='%237FC3AC'/%3E%3Crect x='26.5' y='24' width='11' height='30' rx='2' fill='%23EDDE8E'/%3E%3Crect x='42' y='12' width='11' height='42' rx='2' fill='%23EDDE8E'/%3E%3Crect x='42' y='12' width='11' height='9' rx='2' fill='%23C27BA0'/%3E%3C/svg%3E"><link rel="apple-touch-icon" href="apple-touch-icon.png">
 <script>try{var t=localStorage.getItem('tema');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
 <style>
@@ -206,37 +206,81 @@ details.gaveta[open]>summary{margin-bottom:10px}
  .tema{width:100%}
  th,td{padding:6px 6px}
 }
+/* 22/10/2026: a casca do explorador PRODES — sem coluna lateral, faixa do topo,
+   filtros numa barra de botões com gavetas, filtros aplicados, cartões. */
+.wrap{max-width:1640px}
+.grade{grid-template-columns:minmax(0,1fr);gap:8px}
+.lateral{position:static;max-height:none;overflow:visible;padding-right:0}
+.recorteTopo{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 12px}
+.recorteTopo .cx{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0;padding:10px 14px;flex:0 1 auto}
+.recorteTopo .cx h3{margin:0}
+.recorteTopo #selLente{min-width:260px}
+.anosTopo{flex:0 1 auto;max-width:100%}
+.anosTopo button{padding:4px 9px}
+@media(min-width:901px){.painelFiltros{display:block}}
+.painelFiltros #filtros{display:block}
+.cabFiltros{display:flex;align-items:center;gap:8px;margin:0 0 6px}
+.cabFiltros .rotulo{display:flex;align-items:center;gap:4px;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--suave);font-weight:600;margin:0}
+.gavBarra{display:flex;flex-wrap:wrap;gap:8px 18px;margin:0 0 10px}
+.gavGrupo{display:flex;flex-direction:column;gap:5px}
+.gavTit{font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;color:var(--suave);font-weight:600}
+.gavBotoes{display:flex;flex-wrap:wrap;gap:6px}
+.gavBtn{display:inline-flex;align-items:center;gap:5px;padding:6px 10px;min-height:34px;border:1px solid var(--linha);border-radius:8px;
+  background:var(--painel);font-size:12.5px;color:var(--tinta);cursor:pointer;white-space:nowrap}
+.gavBtn::after{content:'▾';font-size:10px;color:var(--suave)}
+.gavBtn[aria-expanded="true"]{border-color:var(--verde);color:var(--verde);background:color-mix(in srgb,var(--verde) 10%,var(--painel))}
+.gavBtn[aria-expanded="true"]::after{content:'▴'}
+.gavBtn.temFiltro{border-color:var(--aceso);color:var(--aceso)}
+.gavN{background:var(--aceso);color:var(--fundo);border-radius:999px;padding:0 6px;font-size:11px;font-weight:700}
+.gavN:empty{display:none}
+.painelFiltros .gaveta{display:none;margin:0 0 10px;border:2px solid var(--verde)}
+.painelFiltros .gaveta.aberta{display:block}
+.gaveta .lista{max-height:320px}
+.fichas{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;margin-bottom:10px;min-height:0}
+.fichas[hidden]{display:none}
+.resumoTitulo{font-size:11px;font-weight:600;color:var(--suave);margin-right:2px}
+.fichas .limpaTudo{margin-left:auto;font-size:12px;text-decoration:underline dotted;text-underline-offset:3px}
+.fichas .limpaTudo:hover{color:var(--apagado)}
+.kpi{display:flex;flex-wrap:wrap;align-items:center;gap:10px 26px;margin-bottom:14px}
+.kpi .k{flex:0 1 auto;max-width:100%;padding:0;border:0;border-radius:0;background:transparent}
+.kpi .kPrincipal{padding:9px 14px;border:1px solid var(--verde);border-left-width:3px;border-radius:8px;background:color-mix(in srgb,var(--verde) 7%,var(--fundo))}
+.kpi .kPrincipal b{font-size:27px}
+.kpi .kPrincipal .krotulo{font-size:10.5px;font-weight:600;letter-spacing:.6px;text-transform:uppercase;color:var(--verde);margin:0 0 4px}
+@media(max-width:600px){.recorteTopo .cx{flex:1 1 100%}.recorteTopo #selLente{flex:1 1 100%;min-width:0}.gavBtn{white-space:normal}}
 </style></head><body><div class="wrap">
 <div class="topo">
- <h1>Desmatamento PRODES 2016–2024: o que a área virou depois</h1>
+ <h1>FGV Agro - O que o desmatamento virou</h1>
  <div class="tema"><span class="gtit" style="margin:0">Tema</span>
   <span class="seg mini" role="group" aria-label="Tema da página">
    <button type="button" data-tema="auto" title="segue o modo claro ou escuro do seu computador ou celular">Automático</button>
    <button type="button" data-tema="light">Claro</button>
    <button type="button" data-tema="dark">Escuro</button></span></div>
 </div>
-<p class="sub">O ponto de partida é o <b>PRODES</b>: cada pixel de 10 m que ele apontou como desmatado entre 2016 e 2024 (e que, por definição, era vegetação nativa até a supressão — o que o PRODES chama de desmatamento). O <b>MapBiomas</b> 10 m (coleção 4, 2017 a 2025) é a lente que mostra o que a área virou nos anos seguintes. À esquerda você <b>filtra</b> o que entra na conta; no painel do gráfico você <b>compara</b>. Cada filtro tem três estados: um clique para <b>precisa ter</b> (+), dois para <b>não pode ter</b> (−), três para voltar a indiferente. Dentro de um grupo os filtros somam com <b>ou</b>; entre grupos, com <b>e</b>. Na aba Ano a ano, no gráfico Sankey, clique num bloco para <b>seguir</b> aquela área.</p>
+<div class="recorteTopo">
+ <div class="cx"><h3>1. Desmatamento PRODES<span id="i_ano"></span></h3><span class="seg mini anosTopo" id="anosTopo" role="group" aria-label="Anos do desmatamento PRODES"></span></div>
+ <div class="cx"><h3>2. Uso da terra no MapBiomas<span id="i_lente"></span></h3><select id="selLente" aria-label="ano do MapBiomas usado nos números"></select></div>
+</div>
 <div id="avisoTeste" class="aviso" hidden>Página de <b>teste</b>: só algumas janelas do país, para conferir o caminho. Os números não valem para análise.</div>
 <div class="grade">
 <aside class="lateral">
  <button id="abreFiltros" class="abreFiltros" aria-expanded="false" aria-controls="painelFiltros"><span>Filtros</span><span class="n" id="nFiltros">nenhum ativo ▾</span></button>
  <div id="painelFiltros" class="painelFiltros">
   <div id="filtros"></div>
-  <details class="cx dobra" id="dSeguir"><summary><span>Seguir uma área<span id="i_seguir"></span></span></summary>
+  <div class="cx gaveta" id="dSeguir"><h3><span>Seguir uma área<span id="i_seguir"></span></span></h3>
    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
     <select id="segNo" aria-label="o que era" style="flex:1 1 150px;min-width:0"></select>
     <span style="font-size:12px;color:var(--suave)">em</span>
     <select id="segAno" aria-label="em que ano"></select></div>
    <div style="display:flex;gap:6px;margin-top:8px"><button id="segIr">seguir</button><button id="segParar">parar</button></div>
-   <p class="nota" id="segNota"></p></details>
-  <div class="cx"><button id="limpar" style="width:100%">Limpar todos os filtros</button></div>
+   <p class="nota" id="segNota"></p></div>
+  <div class="cx" hidden><button id="limpar" style="width:100%">Limpar todos os filtros</button></div>
  </div>
 </aside>
 <main class="principal">
  <div class="fichas" id="fichas"></div>
  <div class="frase" id="frase"></div>
  <div class="kcab"><span class="gtit" style="margin:0">Números do recorte<span id="i_kpi"></span></span>
-  <div class="lente"><label for="selLente">uso da terra no MapBiomas</label><select id="selLente" aria-label="ano do MapBiomas usado nos números"></select><span id="i_lente"></span></div></div>
+  </div>
  <div class="kpi" id="kpi"></div>
  <nav class="abas" role="tablist" aria-label="Perguntas" id="abas">
   <button role="tab" data-aba="virou">O que virou</button><button role="tab" data-aba="diverge">PRODES × MapBiomas</button><button role="tab" data-aba="mapa">Onde (mapa)</button><button role="tab" data-aba="tempo">Ano a ano</button><button role="tab" data-aba="tabela">Cruzamentos</button><button role="tab" data-aba="trajetorias">Trajetórias</button><button role="tab" data-aba="sobre">Sobre os dados</button>
@@ -299,7 +343,7 @@ details.gaveta[open]>summary{margin-bottom:10px}
  <section class="painel" aria-label="Gráfico principal">
   <div class="pcab"><div><h2 id="gTitulo">Uso da terra ano a ano</h2><p id="gSub"></p></div>
    <div class="acoes" style="align-items:center"><button id="animG" class="anim" title="revela o gráfico ano a ano, a partir do PRODES">▶ animar ano a ano</button>
-   <label style="font-size:12.5px;color:var(--suave)">ano do desmatamento <select id="anoRapido" aria-label="ano do desmatamento"></select></label></div></div>
+   <label hidden style="font-size:12.5px;color:var(--suave)">ano do desmatamento <select id="anoRapido" aria-label="ano do desmatamento"></select></label></div></div>
   <div class="gtit">Comparar<span id="i_comparar"></span></div>
   <div id="eixos"></div>
   <button id="addEixo" class="add" style="margin-top:6px">+ comparação</button>
@@ -568,15 +612,28 @@ function compRel(R,c){ const v=new Float64Array(NE);
 // para todos: abre se tiver até 30 opções ou filtro ativo; as listas longas (UF × bioma, AEZ × UF × bioma)
 // vêm fechadas. Abrir ou fechar à mão fica guardado.
 const ABERTO={}, CURTA=30;
+// Filtros numa barra de botões, em grupos, como no explorador PRODES (22/10/2026):
+// cada botão abre a sua gaveta embaixo da barra, uma por vez, e mostra quantos
+// filtros dela estão ligados. O ano fica nos botões do topo.
+const GRUPOS_FILTRO=[['Território',['bioma','uf','ufbioma','aez','aezufbioma']],['Trajetória',['tipo','dv']]];
+const NOME_BOTAO={bioma:'Bioma',uf:'UF',ufbioma:'UF × bioma',aez:'Zona agroecológica',aezufbioma:'Território (AEZ × UF × bioma)',tipo:'Tipo de trajetória',dv:'PRODES × MapBiomas'};
 function montaFiltros(){
-  $('filtros').innerHTML=DIMS.map(([d,n])=>{ const ab=ABERTO[d]??(S.f[d].size>0||ORD[S.def][d].length<=CURTA);
-    return `<details class="cx dobra" data-dim="${d}"${ab?' open':''}><summary><span>${n}<span id="i_${d}"></span><small class="nOp" id="n_${d}"></small></span><button data-limpa="${d}">limpar</button></summary>`+
+  const gav=d=>`<div class="cx gaveta" data-dim="${d}" id="gav_${d}"><h3><span>${DN[d]}<span id="i_${d}"></span><small class="nOp" id="n_${d}"></small></span><button data-limpa="${d}">limpar</button></h3>`+
     (d==='bioma'?`<div class="seg mini" role="group" aria-label="Definição de bioma" style="margin-bottom:8px"><button data-def="prodes">PRODES (físico)</button><button data-def="mun">municipal</button></div>`:'')+
-    (LONGAS.has(d)?`<input class="busca" data-busca="${d}" placeholder="buscar…" aria-label="buscar em ${n}">`:'')+
-    `<div class="${LONGAS.has(d)?'lista':''}" id="f_${d}"></div></details>`; }).join('');
-  document.querySelectorAll('#filtros details.dobra').forEach(e=>e.addEventListener('toggle',()=>{ ABERTO[e.dataset.dim]=e.open; }));
-  // os ⓘ dos filtros: os grupos acabaram de ser criados, então o ⓘ entra agora (antes ficava sem)
-  for(const [d] of DIMS) if(INFO[d]) $('i_'+d).appendChild(info(...INFO[d]));
+    (LONGAS.has(d)?`<input class="busca" data-busca="${d}" placeholder="buscar…" aria-label="buscar em ${DN[d]}">`:'')+
+    `<div class="${LONGAS.has(d)?'lista':''}" id="f_${d}"></div></div>`;
+  $('filtros').innerHTML=
+    `<div class="cabFiltros"><span class="rotulo">Filtros<span id="i_filtros"></span></span></div><div class="gavBarra">`+
+    GRUPOS_FILTRO.map(([g,ds])=>`<div class="gavGrupo"><span class="gavTit">${g}</span><div class="gavBotoes">`+
+      ds.map(d=>`<button type="button" class="gavBtn" data-gav="${d}" aria-expanded="false" title="${esc(DN[d])}">${NOME_BOTAO[d]}<span class="gavN" id="gn_${d}"></span></button>`).join('')+
+      (g==='Trajetória'?`<button type="button" class="gavBtn" data-gav="seguir" aria-expanded="false" title="seguir o que uma área virou">Seguir uma área<span class="gavN" id="gn_seguir"></span></button>`:'')+
+      `</div></div>`).join('')+`</div>`+
+    GRUPOS_FILTRO.flatMap(([,ds])=>ds).map(gav).join('')+
+    // o ano é filtrado pelos botões do topo; a lista dele fica escondida para a contagem
+    `<div hidden><small id="n_ano"></small><div id="f_ano"></div></div>`;
+  for(const [d] of DIMS) if(INFO[d]&&d!=='ano') $('i_'+d).appendChild(info(...INFO[d]));
+  // "Seguir uma área" mora na mesma faixa das gavetas
+  const ds=$('dSeguir'); if(ds) $('filtros').appendChild(ds);
 }
 function pintaFiltros(){
   const K=KEYS[S.def]; atualizaInc();
@@ -592,7 +649,31 @@ function pintaFiltros(){
   const n=DIMS.reduce((s,[d])=>s+S.f[d].size,0)+(S.seguir?1:0);
   const ab=$('abreFiltros').getAttribute('aria-expanded')==='true';
   $('nFiltros').textContent=(n? n+' ativo'+(n>1?'s':'') : 'nenhum ativo')+(ab?' ▴':' ▾');
+  marcaGavetas(); pintaAnosTopo();
 }
+function marcaGavetas(){
+  for(const [d] of DIMS){ const b=document.querySelector(`[data-gav="${d}"]`); if(!b) continue; const n=S.f[d].size;
+    $('gn_'+d).textContent=n?String(n):''; b.classList.toggle('temFiltro',n>0); b.setAttribute('aria-expanded',$('gav_'+d).classList.contains('aberta')); }
+  const bs=document.querySelector('[data-gav="seguir"]');
+  if(bs){ $('gn_seguir').textContent=S.seguir?'1':''; bs.classList.toggle('temFiltro',!!S.seguir); bs.setAttribute('aria-expanded',$('dSeguir').classList.contains('aberta')); }
+}
+// Anos do topo: nenhum marcado = todos; cada clique soma ou tira aquele ano.
+function pintaAnosTopo(){
+  const inc=[...S.f.ano].filter(([,s])=>s===1).map(([k])=>k), exc=[...S.f.ano].filter(([,s])=>s===2).map(([k])=>k);
+  $('anosTopo').innerHTML=`<button type="button" data-anotopo="" aria-pressed="${!S.f.ano.size}">Todos</button>`+
+    D.anos_prodes.map(a=>{ const s=String(a), on=inc.length? inc.includes(s) : (exc.length? !exc.includes(s) : false);
+      return `<button type="button" data-anotopo="${s}" aria-pressed="${on}">${s}</button>`; }).join('');
+}
+$('anosTopo').onclick=e=>{ const b=e.target.closest('[data-anotopo]'); if(!b) return; const a=b.dataset.anotopo;
+  if(!a) S.f.ano.clear();
+  else { if([...S.f.ano.values()].some(s=>s===2)) S.f.ano.clear();   // havia anos excluídos (link antigo): recomeça
+    S.f.ano.get(a)===1? S.f.ano.delete(a) : S.f.ano.set(a,1); }
+  S.sel.clear(); tudo(); };
+// Um botão por gaveta; uma gaveta aberta por vez.
+$('painelFiltros').addEventListener('click',e=>{ const b=e.target.closest('[data-gav]'); if(!b) return;
+  const alvo=b.dataset.gav==='seguir'? $('dSeguir') : $('gav_'+b.dataset.gav), abre=!alvo.classList.contains('aberta');
+  document.querySelectorAll('#painelFiltros .gaveta').forEach(g=>g.classList.remove('aberta'));
+  if(abre) alvo.classList.add('aberta'); marcaGavetas(); });
 $('filtros').addEventListener('click',e=>{
   const c=e.target.closest('.chip');
   if(c){ const d=c.dataset.d, k=c.dataset.k, st=((S.f[d].get(k)||0)+1)%3; st? S.f[d].set(k,st) : S.f[d].delete(k); S.sel.clear(); tudo(); return; }
@@ -618,7 +699,8 @@ function pintaFichas(){
   const it=[];
   for(const [d] of DIMS) for(const [k,st] of S.f[d]) it.push(`<span class="ficha${st===2?' neg':''}"><small>${DCURTO[d]}${TEM_BIOMA.has(d)?(S.def==='prodes'?' PRODES':' mun.'):''}</small>${st===2?'sem ':''}${esc(k)}<button data-td="${d}" data-tk="${esc(k)}" aria-label="tirar ${esc(k)}">×</button></span>`);
   if(S.seguir) it.push(`<span class="ficha seg"><small>seguindo</small>${esc(nomeSeguir())}<button data-ts="1" aria-label="parar de seguir">×</button></span>`);
-  $('fichas').innerHTML= it.length? it.join('')+'<button class="limpaTudo" id="limpaTudo">limpar tudo</button>' : '<span class="semFiltro">Sem filtros: o Brasil inteiro, desmatamento de 2016 a 2024.</span>';
+  $('fichas').innerHTML= it.length? '<span class="resumoTitulo">Filtros aplicados</span>'+it.join('')+'<button class="limpaTudo" id="limpaTudo">Limpar filtros e seleção</button>' : '';
+  $('fichas').hidden=!it.length;
 }
 $('fichas').addEventListener('click',e=>{
   const b=e.target.closest('button'); if(!b) return;
@@ -682,7 +764,7 @@ function kpis(ctx){
   const at=S.seguir? null : areaTerritorioSelecao();
   const nat=pc([...E_ANTES,...E_FOLGA,...E_NUNCA,...E_EMREG,...E_REG]);
   $('kpi').innerHTML=
-    k(fha(ctx.area),S.seguir?'na área seguida':(ctx.area<TOTAL_BR*0.9995?`desmatados pelo PRODES no recorte (${fp(ctx.area/TOTAL_BR*100)} do Brasil)`:'desmatados pelo PRODES, 2016-2024'))+
+    `<div class="k kPrincipal"><span class="krotulo">Área desmatada (PRODES)</span><b>${fha(ctx.area)}</b><span>${S.seguir?'na área seguida':(ctx.area<TOTAL_BR*0.9995?`${fp(ctx.area/TOTAL_BR*100)} do desmatamento PRODES 2016–2024`:'todo o desmatamento PRODES 2016–2024')}</span></div>`+
     k(fp(pc(E_PASTO)),`viraram pastagem ${ano}`,[cor(13)])+
     k(fp(pc(E_AGRI)),`viraram agricultura ${ano}`,[cor(14),cor(15)])+
     k(fp(pc(E_NUNCA)),`o MapBiomas não confirma: vê vegetação nativa em todos os anos até 2025`,[HIST[1][1]]);
