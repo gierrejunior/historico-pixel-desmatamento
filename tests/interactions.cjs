@@ -156,3 +156,19 @@ test('Ano a ano: Configurar análise e foco com filtro também nas barras e no t
  assert.match(await b.locator('#sel_gWrap').innerText(),/Seleção no gráfico/i);
  await b.close();
 });
+
+test('Vários filtros: o botão de filtrar não some e os % dizem que são dentro dos filtros',async()=>{
+ const p=await page('?modo=simples&f_bioma=%2BAmaz%C3%B4nia&f_uf=%2BPA|%2BMT');
+ const pasto=await p.locator('#tabPA th[data-no]',{hasText:'Pastagem'}).getAttribute('data-no');
+ await p.locator(`#gPorAno g[data-col="2"] rect[data-no="${pasto}"]`).dblclick(); await p.waitForTimeout(600);
+ await p.locator(`#tabAD tr[data-col="5"] td[data-no="${pasto}"]`).dblclick(); await p.waitForTimeout(600);
+ assert.equal(await p.evaluate(()=>PILHA.length),2);
+ await p.locator('#tabAD tr[data-col="5"] td').first().click(); await p.waitForTimeout(400);
+ const b=p.locator('#sel_gAD .fprim'); assert.equal(await b.count(),1); assert.equal(await b.isDisabled(),true);
+ assert.match(await p.locator('#sel_gAD').innerText(),/dentro dos filtros aplicados/);
+ await p.locator(`#tabAD tr[data-col="5"] td[data-no="${pasto}"]`).click(); await p.waitForTimeout(400);   // barra inteira + parte: mistura
+ assert.equal(await p.locator('#sel_gAD .fprim').isDisabled(),true);
+ await p.locator(`#tabAD tr[data-col="5"] td`).first().click(); await p.waitForTimeout(400);   // tira a barra inteira: sobra a parte
+ assert.equal(await p.locator('#sel_gAD .fprim').isDisabled(),false);
+ await p.close();
+});

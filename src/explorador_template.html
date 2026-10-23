@@ -298,6 +298,8 @@ body[data-modo="simples"] #segTempo [data-t="diverge"],body[data-modo="simples"]
 .selecao .fch button{border:0;background:none;padding:0 7px;font-size:15px;line-height:1;color:var(--suave)}
 .selecao .fjun{font-variant-numeric:tabular-nums} .selecao .fjun b{color:var(--verde)}
 .selecao .fprim{background:var(--verde);color:var(--fundo);border-color:var(--verde);font-weight:600}
+.selecao .fprim:disabled{opacity:.45;cursor:not-allowed}
+.selecao .fdent{font-size:11px;color:var(--suave)}
 .dicaFoco{font-size:12px;color:var(--suave);margin:2px 0 12px}
 [data-focavel] svg [data-no],[data-focavel] svg [data-col]{cursor:pointer}
 .tabDados[data-graf] tbody tr[data-col],.tabDados[data-graf] th[data-no]{cursor:pointer}
@@ -1426,9 +1428,12 @@ function aplicaDestaque(id){ const prev=PREV&&PREV.id===id, ps=prev? [PREV.par] 
 function painelSel(id){ const el=$('sel_'+id); if(!el) return; const ps=FOCO[id]||[], m=MOD[id];
   if(!ps.length||!m){ el.innerHTML=`<span class="fdica"><b>Clique</b> no gráfico, na legenda ou na tabela para destacar${m&&m.filtro?' · <b>duplo clique</b> para filtrar':''}.</span>`; return; }
   const jun=m.junta? m.junta(ps) : null, f=m.filtro? m.filtro(ps) : null;
-  el.innerHTML='<span class="ftit">Seleção no gráfico</span>'+ps.map((p,i)=>{ const x=m.item(p); return `<span class="fch"><b>${esc(x.nome)}</b><small>${esc(x.val)}</small><button type="button" data-tira="${i}" aria-label="tirar da seleção" title="tirar da seleção">×</button></span>`; }).join('')+
+  // Com filtros, os % são dentro deles (o "desmatamento de 2018" é o de 2018 nos filtros escolhidos) — 23/10/2026.
+  const filtrado=DIMS.some(([d])=>S.f[d].size)||!!S.seguir;
+  el.innerHTML='<span class="ftit">Seleção no gráfico</span>'+(filtrado?'<small class="fdent">% dentro dos filtros aplicados</small>':'')+ps.map((p,i)=>{ const x=m.item(p); return `<span class="fch"><b>${esc(x.nome)}</b><small>${esc(x.val)}</small><button type="button" data-tira="${i}" aria-label="tirar da seleção" title="tirar da seleção">×</button></span>`; }).join('')+
     (jun? `<span class="fjun">Juntos: <b>${esc(jun)}</b></span>` : '')+
-    (f? `<button type="button" class="fprim" data-filtra title="a página inteira passa a ser só o que está selecionado">Aplicar seleção como filtro</button>` : '')+
+    (f? `<button type="button" class="fprim" data-filtra title="a página inteira passa a ser só o que está selecionado">Aplicar seleção como filtro</button>`
+      : m.filtro? `<button type="button" class="fprim" disabled title="${esc(ps.some(p=>p.no==null)&&ps.some(p=>p.no!=null)? 'misture só partes de barras ou só barras inteiras para filtrar' : 'uma coluna de tempo não é uma área: escolha uma parte da barra (um uso) para filtrar')}">Aplicar seleção como filtro</button>` : '')+
     '<button type="button" data-limpa>Limpar seleção</button>';
   el.querySelectorAll('[data-tira]').forEach(b=>b.onclick=()=>{ ps.splice(+b.dataset.tira,1); aplicaDestaque(id); });
   el.querySelector('[data-limpa]').onclick=()=>{ ps.length=0; aplicaDestaque(id); };
